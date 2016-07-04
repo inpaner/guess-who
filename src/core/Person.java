@@ -21,18 +21,20 @@ public class Person {
     }
 
     public static void main(String[] args) {
-        List<Person> persons = Person.getPersons();
+        List<Person> persons = Person.getAll();
         for (Person person : persons) {
             System.out.println(person.getName());
         }
     }
 
+
     private static final String SQL_GET_ALL =
         "SELECT name " +
-        "FROM Person ";
+        "FROM Person " +
+        "ORDER BY name";
 
 
-    public static List<Person> getPersons() {
+    public static List<Person> getAll() {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -56,6 +58,7 @@ public class Person {
         return persons;
     }
 
+
     String getName() {
         return name;
 
@@ -66,7 +69,7 @@ public class Person {
         Person person = null;
         try {
             person = new Person(
-                    rs.getString("name")
+                rs.getString("name")
             );
         }
         catch (SQLException e) {
