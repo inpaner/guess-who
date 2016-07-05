@@ -28,10 +28,27 @@ public class Description {
     }
 
     public static void main(String[] args) {
+        test_get();
+    }
+
+
+    private static void test_get_all() {
         List<Description> descriptions = Description.getAll();
         for (Description description : descriptions) {
-            System.out.println(description.description);
+            String superclass = "";
+            if (description.hasSuperclass()) {
+                superclass = description.superclassName;
+            }
+            System.out.println(description.description + ": " + superclass);
         }
+    }
+
+
+    private static void test_get() {
+        Description male = Description.get("male");
+        System.out.println(male.description);
+        Description isNull = Description.get("cow");
+        System.out.println(isNull == null);
     }
 
 
@@ -49,7 +66,7 @@ public class Description {
     }
 
 
-    Description(String description) {
+    private Description(String description) {
         this(description, "", "", "");
     }
 
@@ -63,10 +80,24 @@ public class Description {
         if (superclassName == null) {
             return null;
         } else if (superclass == null) {
-            Description container = new Description(superclassName);
-            superclass = cache.get(cache.indexOf(container));
+            superclass = Description.get(superclassName);
         }
         return superclass;
+    }
+
+
+    boolean hasSuperclass() {
+        return superclassName != null && !superclassName.isEmpty();
+    }
+
+
+    static Description get(String description) {
+        Description container = new Description(description);
+        int index = cache.indexOf(container);
+        if (index == -1) {
+            return null;
+        }
+        return cache.get(index);
     }
 
 
