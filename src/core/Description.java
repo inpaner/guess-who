@@ -9,17 +9,23 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by Ivan Paner on 7/4/2016.
  */
 public class Description {
+    private static List<Description> cache = new ArrayList<>();
     private String description;
-    private String question = "";
+    private String question;
     private Description superclass;
     private String superclassName;
-    private String grouping = "";
+    private String grouping;
 
+
+    static {
+        initCache();
+    }
 
     public static void main(String[] args) {
         List<Description> descriptions = Description.getAll();
@@ -30,9 +36,9 @@ public class Description {
 
 
     private static final String SQL_GET_ALL =
-        "SELECT description, question, superclass, grouping " +
-        "FROM Description " +
-        "ORDER BY description";
+            "SELECT description, question, superclass, grouping " +
+                    "FROM Description " +
+                    "ORDER BY description";
 
 
     Description(String description, String question, String superclass, String grouping) {
@@ -43,17 +49,32 @@ public class Description {
     }
 
 
+    Description(String description) {
+        this(description, "", "", "");
+    }
+
+
     String getDescription() {
         return description;
     }
 
 
-    public static List<Description> getAll() {
+    Description getSuperclass() {
+        if (superclassName == null) {
+            return null;
+        } else if (superclass == null) {
+            Description container = new Description(superclassName);
+            superclass = cache.get(cache.indexOf(container));
+        }
+        return superclass;
+    }
+
+
+    private static void initCache() {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         Object[] values = {};
-        List<Description> descriptions = new ArrayList<>();
         try {
             DaoFactory factory = DaoFactory.getInstance();
             conn = factory.getConnection();
@@ -62,14 +83,21 @@ public class Description {
 
             while (rs.next()) {
                 Description description = map(rs);
-                descriptions.add(description);
+                cache.add(description);
             }
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         } finally {
             DaoUtil.close(conn, ps, rs);
         }
-        return descriptions;
+    }
+
+
+    /**
+     * @return A copy of the cache.
+     */
+    public static List<Description> getAll() {
+        return new ArrayList<>(cache);
     }
 
 
@@ -77,15 +105,29 @@ public class Description {
         Description person = null;
         try {
             person = new Description(
-                    rs.getString("description"),
-                    rs.getString("question"),
-                    rs.getString("superclass"),
-                    rs.getString("grouping")
+                rs.getString("description"),
+                rs.getString("question"),
+                rs.getString("superclass"),
+                rs.getString("grouping")
             );
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return person;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof Description)) return false;
+        Description description = (Description) o;
+        return Objects.equals(this.description, description.description);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.description);
     }
 }
