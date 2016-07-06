@@ -16,24 +16,34 @@ import java.util.Map;
  */
 public class ScoreManager {
     private static final String SQL_GET_SCORE =
-        "SELECT name, description, value " +
+        "SELECT name, description, score " +
         "FROM ScoreMatrix " +
         "WHERE name = ? AND description = ? ";
 
     private static final String SQL_GET_PERSON_SCORES =
-        "SELECT name, description, value " +
+        "SELECT name, description, score " +
         "FROM ScoreMatrix " +
         "WHERE name = ? ";
 
     private static final String SQL_GET_DESCRIPTION_SCORES =
-        "SELECT name, description, value " +
+        "SELECT name, description, score " +
         "FROM ScoreMatrix " +
         "WHERE description = ? ";
+
+    private static final String SQL_INSERT =
+        "INSERT INTO ScoreMatrix(name, description, score) " +
+        "VALUES (?, ?, ?) ";
+
+    private static final String SQL_UPDATE =
+        "UPDATE ScoreMatrix " +
+        "SET score = ? " +
+        "WHERE name = ? AND description = ? ";
 
 
     public static void main(String[] args) {
 //        new ScoreManager().testPersonScores();
-        new ScoreManager().testDescriptionScores();
+//        new ScoreManager().testDescriptionScores();
+        new ScoreManager().testUpdateScore();
     }
 
 
@@ -57,6 +67,13 @@ public class ScoreManager {
     }
 
 
+    private final void testUpdateScore() {
+        Person person = new Person("Ashley");
+        Description description = new Description("male");
+        this.updateScore(person, description, -8.0);
+    }
+
+
     double getScore(Person person, Description description) {
         return this.getScore(person.getName(), description.getDescription());
     }
@@ -66,15 +83,15 @@ public class ScoreManager {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        Object[] values = {name, description};
         double score = 0.0;
         try {
             DaoFactory factory = DaoFactory.getInstance();
             conn = factory.getConnection();
+            Object[] values = {name, description};
             ps = DaoUtil.prepareStatement(conn, SQL_GET_SCORE, false, values);
             rs = ps.executeQuery();
             while (rs.next()) {
-                score = rs.getDouble("value");
+                score = rs.getDouble("score");
             }
         } catch (SQLException e) {
             System.err.println(e.getMessage());
@@ -82,6 +99,33 @@ public class ScoreManager {
             DaoUtil.close(conn, ps, rs);
         }
         return score;
+    }
+
+
+    boolean updateScore(Person person, Description description, double score) {
+        boolean success = false;
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            DaoFactory factory = DaoFactory.getInstance();
+            conn = factory.getConnection();
+            Object[] values = {person.getName(), description.getDescription(), score};
+            ps = DaoUtil.prepareStatement(conn, SQL_INSERT, false, values);
+            ps.executeUpdate();
+            success = true;
+        } catch (SQLException e) {
+            try {
+                Object[] values = {score, person.getName(), description.getDescription()};
+                ps = DaoUtil.prepareStatement(conn, SQL_UPDATE, false, values);
+                ps.executeUpdate();
+                success = true;
+            } catch (SQLException ex) {
+                System.err.println(ex.getMessage());
+            }
+        } finally {
+            DaoUtil.close(conn, ps);
+        }
+        return success;
     }
 
 
@@ -100,14 +144,14 @@ public class ScoreManager {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        Object[] values = {person.getName()};
         try {
             DaoFactory factory = DaoFactory.getInstance();
             conn = factory.getConnection();
+            Object[] values = {person.getName()};
             ps = DaoUtil.prepareStatement(conn, SQL_GET_PERSON_SCORES, false, values);
             rs = ps.executeQuery();
             while (rs.next()) {
-                double score = rs.getDouble("value");
+                double score = rs.getDouble("score");
                 Description description = new Description(rs.getString("description"));
                 scores.put(description, score);
             }
@@ -142,7 +186,7 @@ public class ScoreManager {
             ps = DaoUtil.prepareStatement(conn, SQL_GET_DESCRIPTION_SCORES, false, values);
             rs = ps.executeQuery();
             while (rs.next()) {
-                double score = rs.getDouble("value");
+                double score = rs.getDouble("score");
                 Person person = new Person(rs.getString("name"));
                 scores.put(person, score);
             }
@@ -153,4 +197,7 @@ public class ScoreManager {
         }
         return scores;
     }
+
+
+
 }
