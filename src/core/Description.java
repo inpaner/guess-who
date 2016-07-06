@@ -28,11 +28,11 @@ public class Description {
     }
 
     public static void main(String[] args) {
-        test_get();
+        testGet();
     }
 
 
-    private static void test_get_all() {
+    private static void testGetAll() {
         List<Description> descriptions = Description.getAll();
         for (Description description : descriptions) {
             String superclass = "";
@@ -44,7 +44,7 @@ public class Description {
     }
 
 
-    private static void test_get() {
+    private static void testGet() {
         Description male = Description.get("male");
         System.out.println(male.description);
         Description isNull = Description.get("cow");
