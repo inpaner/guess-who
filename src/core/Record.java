@@ -16,8 +16,8 @@ import java.util.Map;
 public class Record {
     private static final String SQL_GET =
         "SELECT name, description, answer " +
-        "FROM PersonDescription " +
-        "WHERE name = ? ";
+            "FROM PersonDescription " +
+            "WHERE name = ? ";
     private Person person;
     private Map<Description, Boolean> descriptionAnswers;
 

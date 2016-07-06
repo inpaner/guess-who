@@ -161,4 +161,10 @@ public class Description {
     public int hashCode() {
         return Objects.hash(this.description);
     }
+
+
+    @Override
+    public String toString() {
+        return description;
+    }
 }

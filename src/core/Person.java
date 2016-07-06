@@ -14,10 +14,14 @@ import java.util.List;
  * Created by Ivan Paner on 6/29/2016.
  */
 public class Person {
+    private static List<Person> cache = new ArrayList<>();
     private String name;
-
     Person(String name) {
         this.name = name;
+    }
+
+    static {
+        Person.initCache();
     }
 
     public static void main(String[] args) {
@@ -34,12 +38,19 @@ public class Person {
         "ORDER BY name";
 
 
+    /**
+     * @return A copy of the cache.
+     */
     public static List<Person> getAll() {
+        return new ArrayList<>(cache);
+    }
+
+
+    private static void initCache() {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         Object[] values = {};
-        List<Person> persons = new ArrayList<>();
         try {
             DaoFactory factory = DaoFactory.getInstance();
             conn = factory.getConnection();
@@ -48,14 +59,13 @@ public class Person {
 
             while (rs.next()) {
                 Person person = map(rs);
-                persons.add(person);
+                cache.add(person);
             }
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         } finally {
             DaoUtil.close(conn, ps, rs);
         }
-        return persons;
     }
 
 
@@ -76,5 +86,11 @@ public class Person {
             e.printStackTrace();
         }
         return person;
+    }
+
+
+    @Override
+    public String toString() {
+        return name;
     }
 }
