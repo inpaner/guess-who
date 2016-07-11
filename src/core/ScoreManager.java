@@ -41,9 +41,9 @@ public class ScoreManager {
 
 
     public static void main(String[] args) {
-//        new ScoreManager().testPersonScores();
+        new ScoreManager().testPersonScores();
 //        new ScoreManager().testDescriptionScores();
-        new ScoreManager().testUpdateScore();
+//        new ScoreManager().testUpdateScore();
     }
 
 
