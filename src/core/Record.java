@@ -31,17 +31,24 @@ public class Record {
         test();
     }
 
+
+    Map<Description, Boolean> getDescriptionAnswers() {
+        return descriptionAnswers;
+    }
+
+
     public static final void test() {
-        Record record = Record.get("Ashley");
+        Record record = Record.get(new Person("Ashley"));
         System.out.println(record.getAnswer("white"));
         System.out.println(record.getAnswer("black"));
     }
 
-    static Record get(String name) {
+
+    static Record get(Person person) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        Object[] values = {name};
+        Object[] values = {person.getName()};
         Record toGet = null;
         try {
             DaoFactory factory = DaoFactory.getInstance();
@@ -59,7 +66,6 @@ public class Record {
                 }
                 descriptions.put(description, answer);
             }
-            Person person = new Person(name);
             toGet = new Record(person, descriptions);
         } catch (SQLException e) {
             System.err.println(e.getMessage());
