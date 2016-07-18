@@ -12,3 +12,5 @@
 hs_err_pid*
 
 /db
+.idea/codeStyleSettings.xml
+.idea/workspace.xml

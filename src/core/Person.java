@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by Ivan Paner on 6/29/2016.
@@ -85,6 +86,21 @@ public class Person {
             e.printStackTrace();
         }
         return person;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof Person)) return false;
+        Person person = (Person) o;
+        return Objects.equals(this.name, person.name);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.name);
     }
 
 
