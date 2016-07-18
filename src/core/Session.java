@@ -8,10 +8,13 @@ import java.util.Map;
 /**
  * Created by Ivan Paner on 7/13/2016.
  */
-public class SessionManager {
+public class Session {
+    private List<Description> askedDescriptions = new ArrayList<>();
+    private List<Person> askedPersons = new ArrayList<>();
+
 
     public static void main(String[] args) {
-        SessionManager sm = new SessionManager();
+        Session sm = new Session();
         List<Description> descriptions = Description.getAll();
         sm.getBestQuestion(descriptions);
     }
@@ -19,12 +22,11 @@ public class SessionManager {
 
     Description getBestQuestion(List<Description> descriptions) {
         Collections.shuffle(descriptions); // not sure if necessary
-        ScoreManager sm = new ScoreManager();
         List<Double> margins = new ArrayList<>();
         for (Description description : descriptions) {
             //TODO remove other persons
-            Map<Person, Double> scores = sm.getScores(description);
-            double margin = this.getMargin(scores);
+            List<Cell> cells = Cell.getCells(description);
+            double margin = this.getMargin(cells);
             margins.add(margin);
             System.out.println(description + ": " + margin);
         }
@@ -41,11 +43,12 @@ public class SessionManager {
     }
 
 
-    private double getMargin(Map<Person, Double> scores) {
+    private double getMargin(List<Cell> cells) {
         double positive = 0;
         double negative = 0;
 
-        for (Double score : scores.values()) {
+        for (Cell  cell : cells) {
+            double score = cell.getScore();
             if (score >= 0) {
                 positive += score;
             } else {
@@ -54,6 +57,4 @@ public class SessionManager {
         }
         return Math.abs(positive + negative);
     }
-
-
 }

@@ -1,6 +1,5 @@
 package core;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,12 +23,12 @@ public class RecordUpdater {
 
 
     void updatePerson(Person person) {
-        ScoreManager sm = new ScoreManager();
         Record record = Record.get(person);
         Map<Description, Boolean> descriptions = record.getDescriptionAnswers();
         for (Description description : descriptions.keySet()) {
             double score = this.getScore(descriptions.get(description));
-            sm.updateScore(person, description, score);
+            Cell toUpdate = new Cell(person, description, score);
+            toUpdate.updateCell();
         }
     }
 
