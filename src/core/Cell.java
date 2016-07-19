@@ -92,8 +92,6 @@ public class Cell {
     }
 
 
-
-
     private static final void testDescriptionScores() {
         Description description = new Description("male");
         System.out.println(description);
