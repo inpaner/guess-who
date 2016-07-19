@@ -11,7 +11,7 @@ import java.util.Map;
 public class Session {
     private List<Description> askedDescriptions = new ArrayList<>();
     private List<Person> askedPersons = new ArrayList<>();
-
+    private List<Cell> modifiedCells = new ArrayList<>();
 
     public static void main(String[] args) {
         Session sm = new Session();
