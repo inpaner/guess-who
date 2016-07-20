@@ -1,5 +1,6 @@
 package core;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,9 +25,13 @@ public class RecordUpdater {
 
     void updatePerson(Person person) {
         Record record = Record.get(person);
-        Map<Description, Boolean> descriptions = record.getDescriptionAnswers();
-        for (Description description : descriptions.keySet()) {
-            double score = this.getScore(descriptions.get(description));
+        Map<Description, Boolean> recordDescriptions = record.getDescriptionAnswers();
+        List<Description> allDescriptions = Description.getAll();
+        for (Description description : allDescriptions) {
+            double score = -4;
+            if (recordDescriptions.containsKey(description)) {
+                score = this.getScore(recordDescriptions.get(description));
+            }
             Cell toUpdate = new Cell(person, description, score);
             toUpdate.updateCell();
         }
