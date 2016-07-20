@@ -10,13 +10,28 @@ import java.util.Map;
  */
 public class Session {
     private List<Description> askedDescriptions = new ArrayList<>();
-    private List<Person> askedPersons = new ArrayList<>();
+    private List<Answer> answers = new ArrayList<>();
+    private List<Person> topPersons = new ArrayList<>();
     private List<Cell> modifiedCells = new ArrayList<>();
 
     public static void main(String[] args) {
+        new Session().testOneCycle();
+    }
+
+    void testGet() {
         Session sm = new Session();
         List<Description> descriptions = Description.getAll();
         sm.getBestQuestion(descriptions);
+    }
+
+    void testOneCycle() {
+        Description bestQuestion = this.getBestQuestion(Description.getAll());
+        System.out.println(bestQuestion.getQuestion());
+        Answer answer = Answer.get("no");
+        this.answerDescription(bestQuestion, answer);
+        for (Cell cell : modifiedCells) {
+            System.out.println(cell);
+        }
     }
 
 
@@ -40,6 +55,29 @@ public class Session {
         }
         System.out.println("Best: " + descriptions.get(bestDescIndex));
         return descriptions.get(bestDescIndex);
+    }
+
+
+    void answerDescription(Description description, Answer answer) {
+        askedDescriptions.add(description);
+        answers.add(answer);
+        List<Cell> personCells = Cell.getCells(description);
+        personCells = this.removePersons(personCells);
+        for (Cell cell : personCells) {
+            cell.addScore(answer.getScore());
+            modifiedCells.add(cell);
+        }
+    }
+
+
+    private List<Cell> removePersons(List<Cell> personCells) {
+        List<Cell> filteredCells = new ArrayList<>();
+        for (Cell cell : personCells) {
+            if (!topPersons.contains(cell.getPerson())) {
+                filteredCells.add(cell);
+            }
+        }
+        return filteredCells;
     }
 
 

@@ -44,6 +44,11 @@ public class Description {
     }
 
 
+    String getQuestion() {
+        return question;
+    }
+
+
     private static void testGet() {
         Description male = Description.get("male");
         System.out.println(male.description);

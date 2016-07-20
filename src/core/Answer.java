@@ -53,16 +53,30 @@ public class Answer {
     }
 
 
-    public static double getScore(String answerStr) {
-        double score = 0;
-        Answer answerTemp = new Answer(answerStr.toLowerCase(), 0);
-        int index = cache.indexOf(answerTemp);
-        if (index >= 0) {
-            Answer answer = cache.get(index);
-            score = answer.score;
-        }
+    double getScore() {
         return score;
     }
+
+
+    public static Answer get(String answerStr) {
+        Answer answerTemp = new Answer(answerStr.toLowerCase(), 0);
+        int index = cache.indexOf(answerTemp);
+        Answer answer = null;
+        if (index >= 0) {
+            answer = cache.get(index);
+        } else {
+            answer = new Answer("unknown", 0);
+        }
+        return answer;
+    }
+
+
+    public static double getScore(String answerStr) {
+        Answer answer = Answer.get(answerStr);
+
+        return answer.getScore();
+    }
+
 
     private static void populateCache() {
         Connection conn = null;

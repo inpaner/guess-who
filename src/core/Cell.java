@@ -121,6 +121,11 @@ public class Cell {
     }
 
 
+    void addScore(double scoreToAdd) {
+        this.score += scoreToAdd;
+    }
+
+
     static Cell getCell(Person person, Description description) {
         Connection conn = null;
         PreparedStatement ps = null;
@@ -244,6 +249,10 @@ public class Cell {
         return cells;
     }
 
+    @Override
+    public String toString() {
+        return person + ", " + description + ", " + score;
+    }
 
     @Override
     public boolean equals(Object o) {
