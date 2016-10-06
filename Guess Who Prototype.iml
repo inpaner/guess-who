@@ -10,13 +10,13 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/Programming/sqlite-jdbc-3.8.11.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../Commons/sqlite-jdbc/sqlite-jdbc-3.8.11.2.jar!/" />
         </CLASSES>
         <JAVADOC>
-          <root url="jar://$USER_HOME$/Programming/sqlite-jdbc-3.7.2-javadoc.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../Commons/sqlite-jdbc/sqlite-jdbc-3.7.2-javadoc.jar!/" />
         </JAVADOC>
         <SOURCES>
-          <root url="jar://$USER_HOME$/Programming/sqlite-jdbc-3.8.11.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../Commons/sqlite-jdbc/sqlite-jdbc-3.8.11.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

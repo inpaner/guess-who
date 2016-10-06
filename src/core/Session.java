@@ -1,9 +1,6 @@
 package core;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Ivan Paner on 7/13/2016.
@@ -12,26 +9,32 @@ public class Session {
     private List<Description> askedDescriptions = new ArrayList<>();
     private List<Answer> answers = new ArrayList<>();
     private List<Person> topPersons = new ArrayList<>();
-    private List<Cell> modifiedCells = new ArrayList<>();
+    private Map<Description, List<Cell>> modifiedCells = new HashMap<>();
+
 
     public static void main(String[] args) {
+//        new Session().testGetBestQuestion();
         new Session().testOneCycle();
     }
 
-    void testGet() {
+    void testGetBestQuestion() {
         Session sm = new Session();
         List<Description> descriptions = Description.getAll();
         sm.getBestQuestion(descriptions);
     }
 
     void testOneCycle() {
-        Description bestQuestion = this.getBestQuestion(Description.getAll());
+        Description bestQuestion = getBestQuestion(Description.getAll());
         System.out.println(bestQuestion.getQuestion());
         Answer answer = Answer.get("no");
-        this.answerDescription(bestQuestion, answer);
-        for (Cell cell : modifiedCells) {
-            System.out.println(cell);
+        answerDescription(bestQuestion, answer);
+        for (List<Cell> filteredCells : modifiedCells.values()) {
+            for (Cell cell : filteredCells) {
+                System.out.println(cell);
+            }
         }
+        bestQuestion = getBestQuestion(Description.getAll());
+        System.out.println(bestQuestion.getQuestion());
     }
 
 
@@ -39,9 +42,13 @@ public class Session {
         Collections.shuffle(descriptions); // not sure if necessary
         List<Double> margins = new ArrayList<>();
         for (Description description : descriptions) {
-            //TODO remove other persons
-            List<Cell> cells = Cell.getCells(description);
-            double margin = this.getMargin(cells);
+            List<Cell> cells;
+            if (modifiedCells.containsKey(description)) {
+                cells = modifiedCells.get(description);
+            } else {
+                cells = Cell.getCells(description);
+            }
+            double margin = getMargin(cells);
             margins.add(margin);
             System.out.println(description + ": " + margin);
         }
@@ -62,11 +69,13 @@ public class Session {
         askedDescriptions.add(description);
         answers.add(answer);
         List<Cell> personCells = Cell.getCells(description);
-        personCells = this.removePersons(personCells);
+        personCells = removePersons(personCells);
+        List<Cell> cells = new ArrayList<>();
         for (Cell cell : personCells) {
-            cell.addScore(answer.getScore());
-            modifiedCells.add(cell);
+            cell.addScore(answer.getScore()); // TODO: verify if valid
+            cells.add(cell);
         }
+        modifiedCells.put(description, cells);
     }
 
 
@@ -87,7 +96,7 @@ public class Session {
 
         for (Cell  cell : cells) {
             double score = cell.getScore();
-            if (score >= 0) {
+            if (score > 0) {
                 positive += score;
             } else {
                 negative += score;

@@ -112,7 +112,7 @@ public class Answer {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.answer);
+        return Objects.hash(answer);
     }
 
 

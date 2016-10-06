@@ -84,7 +84,7 @@ public class Record {
         if (!descriptionAnswers.containsKey(description)) {
             return false;
         }
-        return this.getAnswer(description);
+        return getAnswer(description);
     }
 
     @Override

@@ -164,7 +164,7 @@ public class Description {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.description);
+        return Objects.hash(description);
     }
 
 

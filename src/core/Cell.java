@@ -266,6 +266,6 @@ public class Cell {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.person, this.description);
+        return Objects.hash(person, description);
     }
 }

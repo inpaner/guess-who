@@ -17,13 +17,17 @@ import java.util.Objects;
 public class Person {
     private static List<Person> cache = new ArrayList<>();
     private String name;
+
+
     Person(String name) {
         this.name = name;
     }
 
+
     static {
         Person.initCache();
     }
+
 
     public static void main(String[] args) {
         List<Person> persons = Person.getAll();
@@ -100,7 +104,7 @@ public class Person {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.name);
+        return Objects.hash(name);
     }
 
 

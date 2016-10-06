@@ -17,7 +17,7 @@ public class RecordUpdater {
 
     void updateAll() {
         for (Person person : Person.getAll()) {
-            this.updatePerson(person);
+            updatePerson(person);
         }
 
     }
@@ -30,7 +30,7 @@ public class RecordUpdater {
         for (Description description : allDescriptions) {
             double score = -4;
             if (recordDescriptions.containsKey(description)) {
-                score = this.getScore(recordDescriptions.get(description));
+                score = getScore(recordDescriptions.get(description));
             }
             Cell toUpdate = new Cell(person, description, score);
             toUpdate.updateCell();
