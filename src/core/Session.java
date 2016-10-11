@@ -24,6 +24,8 @@ public class Session {
     }
 
     void testOneCycle() {
+        topPersons = Person.getAll();
+        topPersons.forEach(System.out::println);
         Description bestQuestion = getBestQuestion(Description.getAll());
         System.out.println(bestQuestion.getQuestion());
         Answer answer = Answer.get("no");
@@ -34,6 +36,7 @@ public class Session {
             }
         }
         bestQuestion = getBestQuestion(Description.getAll());
+        topPersons.forEach(System.out::println);
         System.out.println(bestQuestion.getQuestion());
     }
 
@@ -48,7 +51,13 @@ public class Session {
             } else {
                 cells = Cell.getCells(description);
             }
-            double margin = getMargin(cells);
+            List<Cell> filteredCells = new ArrayList<>();
+            for (Cell cell : cells) {
+                if (topPersons.contains(cell.getPerson())) {
+                    filteredCells.add(cell);
+                }
+            }
+            double margin = getMargin(filteredCells);
             margins.add(margin);
             System.out.println(description + ": " + margin);
         }
@@ -69,9 +78,12 @@ public class Session {
         askedDescriptions.add(description);
         answers.add(answer);
         List<Cell> personCells = Cell.getCells(description);
-        personCells = removePersons(personCells);
+        personCells = getTopPersons(personCells);
         List<Cell> cells = new ArrayList<>();
         for (Cell cell : personCells) {
+            if (cell.getScore() * answer.getScore() < 0) { // if scores are opposite signs
+                topPersons.remove(cell.getPerson());
+            }
             cell.addScore(answer.getScore()); // TODO: verify if valid
             cells.add(cell);
         }
@@ -79,10 +91,11 @@ public class Session {
     }
 
 
-    private List<Cell> removePersons(List<Cell> personCells) {
+
+    private List<Cell> getTopPersons(List<Cell> personCells) {
         List<Cell> filteredCells = new ArrayList<>();
         for (Cell cell : personCells) {
-            if (!topPersons.contains(cell.getPerson())) {
+            if (topPersons.contains(cell.getPerson())) {
                 filteredCells.add(cell);
             }
         }
