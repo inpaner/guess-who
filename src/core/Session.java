@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * Created by Ivan Paner on 7/13/2016.
  */
-public class Session {
+public final class Session {
     private List<Description> askedDescriptions = new ArrayList<>();
     private List<Answer> answers = new ArrayList<>();
     private List<Person> topPersons = new ArrayList<>();
@@ -14,16 +14,19 @@ public class Session {
 
     public static void main(String[] args) {
 //        new Session().testGetBestQuestion();
-        new Session().testOneCycle();
+//        new Session().testOneCycle();
+        new Session().testResponseCycles();
     }
 
-    void testGetBestQuestion() {
+
+    private void testGetBestQuestion() {
         Session sm = new Session();
         List<Description> descriptions = Description.getAll();
         sm.getBestQuestion(descriptions);
     }
 
-    void testOneCycle() {
+
+    private void testOneCycle() {
         topPersons = Person.getAll();
         topPersons.forEach(System.out::println);
         Description bestQuestion = getBestQuestion(Description.getAll());
@@ -41,7 +44,28 @@ public class Session {
     }
 
 
-    Description getBestQuestion(List<Description> descriptions) {
+    private void testResponseCycles() {
+        // setup
+        topPersons = Person.getAll();
+        topPersons.forEach(System.out::println);
+        while (true) {
+            performCycle();
+        }
+    }
+
+
+    private void performCycle() {
+        Description bestQuestion = getBestQuestion(Description.getAll());
+        System.out.println(bestQuestion.getQuestion());
+        Scanner scanner = new Scanner(System.in);
+        String input = scanner.nextLine();
+        Answer answer = Answer.getInputted(input);
+        answerDescription(bestQuestion, answer);
+        topPersons.forEach(System.out::println);
+    }
+
+
+    private Description getBestQuestion(List<Description> descriptions) {
         Collections.shuffle(descriptions); // not sure if necessary
         List<Double> margins = new ArrayList<>();
         for (Description description : descriptions) {
@@ -59,7 +83,7 @@ public class Session {
             }
             double margin = getMargin(filteredCells);
             margins.add(margin);
-            System.out.println(description + ": " + margin);
+//            System.out.println(description + ": " + margin);
         }
         double minMargin = Double.MAX_VALUE;
         int bestDescIndex = 0;
@@ -69,7 +93,7 @@ public class Session {
                 minMargin = margins.get(i);
             }
         }
-        System.out.println("Best: " + descriptions.get(bestDescIndex));
+//        System.out.println("Best: " + descriptions.get(bestDescIndex));
         return descriptions.get(bestDescIndex);
     }
 

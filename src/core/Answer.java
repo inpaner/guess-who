@@ -47,6 +47,7 @@ public class Answer {
         System.out.println(score);
     }
 
+
     Answer(String answer, double score) {
         this.answer = answer;
         this.score = score;
@@ -71,9 +72,17 @@ public class Answer {
     }
 
 
+    public static Answer getInputted(String answerStr) {
+        if (answerStr.toLowerCase().equals("y") || answerStr.toLowerCase().equals("yes")) {
+            return Answer.get("yes");
+        } else {
+            return Answer.get("no");
+        }
+    }
+
+
     public static double getScore(String answerStr) {
         Answer answer = Answer.get(answerStr);
-
         return answer.getScore();
     }
 
