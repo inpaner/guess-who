@@ -48,6 +48,7 @@ public final class Session {
         // setup
         topPersons = Person.getAll();
         topPersons.forEach(System.out::println);
+        System.out.println("\n");
         while (true) {
             performCycle();
         }
@@ -61,7 +62,10 @@ public final class Session {
         String input = scanner.nextLine();
         Answer answer = Answer.getInputted(input);
         answerDescription(bestQuestion, answer);
+        System.out.println("\n--------");
         topPersons.forEach(System.out::println);
+        System.out.println("\n");
+
     }
 
 
@@ -83,7 +87,7 @@ public final class Session {
             }
             double margin = getMargin(filteredCells);
             margins.add(margin);
-//            System.out.println(description + ": " + margin);
+            System.out.println(description + ": " + margin);
         }
         double minMargin = Double.MAX_VALUE;
         int bestDescIndex = 0;
@@ -93,7 +97,7 @@ public final class Session {
                 minMargin = margins.get(i);
             }
         }
-//        System.out.println("Best: " + descriptions.get(bestDescIndex));
+        System.out.println("Best: " + descriptions.get(bestDescIndex));
         return descriptions.get(bestDescIndex);
     }
 
