@@ -18,18 +18,16 @@ public final class Session {
         new Session().testResponseCycles();
     }
 
-
-    private void testGetBestQuestion() {
+        private void testGetBestQuestion() {
         Session sm = new Session();
-        List<Description> descriptions = Description.getAll();
-        sm.getBestQuestion(descriptions);
+        sm.getNewBestDescription();
     }
 
 
     private void testOneCycle() {
         topPersons = Person.getAll();
         topPersons.forEach(System.out::println);
-        Description bestQuestion = getBestQuestion(Description.getAll());
+        Description bestQuestion = getNewBestDescription();
         System.out.println(bestQuestion.getQuestion());
         Answer answer = Answer.get("no");
         answerDescription(bestQuestion, answer);
@@ -38,7 +36,7 @@ public final class Session {
                 System.out.println(cell);
             }
         }
-        bestQuestion = getBestQuestion(Description.getAll());
+        bestQuestion = getNewBestDescription();
         topPersons.forEach(System.out::println);
         System.out.println(bestQuestion.getQuestion());
     }
@@ -56,7 +54,7 @@ public final class Session {
 
 
     private void performCycle() {
-        Description bestQuestion = getBestQuestion(Description.getAll());
+        Description bestQuestion = getNewBestDescription();
         System.out.println(bestQuestion.getQuestion());
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
@@ -65,11 +63,11 @@ public final class Session {
         System.out.println("\n--------");
         topPersons.forEach(System.out::println);
         System.out.println("\n");
-
     }
 
 
-    private Description getBestQuestion(List<Description> descriptions) {
+    public Description getNewBestDescription() {
+        List<Description> descriptions = Description.getAll();
         Collections.shuffle(descriptions); // not sure if necessary
         List<Double> margins = new ArrayList<>();
         for (Description description : descriptions) {
@@ -97,16 +95,24 @@ public final class Session {
                 minMargin = margins.get(i);
             }
         }
-        System.out.println("Best: " + descriptions.get(bestDescIndex));
+        System.out.println("Best: " + descriptions.get(bestDescIndex) + "\n");
         return descriptions.get(bestDescIndex);
     }
 
 
-    void answerDescription(Description description, Answer answer) {
+    public void reset() {
+        modifiedCells = new HashMap<>();
+        askedDescriptions = new ArrayList<>();
+        answers = new ArrayList<>();
+        topPersons = Person.getAll();
+    }
+
+
+    public void answerDescription(Description description, Answer answer) {
         askedDescriptions.add(description);
         answers.add(answer);
         List<Cell> personCells = Cell.getCells(description);
-        personCells = getTopPersons(personCells);
+        personCells = getTopPersonCells(personCells);
         List<Cell> cells = new ArrayList<>();
         for (Cell cell : personCells) {
             if (cell.getScore() * answer.getScore() < 0) { // if scores are opposite signs
@@ -119,8 +125,12 @@ public final class Session {
     }
 
 
+    public List<Person> getTopPersons() {
+        return  topPersons;
+    }
 
-    private List<Cell> getTopPersons(List<Cell> personCells) {
+
+    private List<Cell> getTopPersonCells(List<Cell> personCells) {
         List<Cell> filteredCells = new ArrayList<>();
         for (Cell cell : personCells) {
             if (topPersons.contains(cell.getPerson())) {
