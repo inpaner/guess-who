@@ -15,7 +15,8 @@ public class MainFrame extends JFrame {
 	public static final Dimension HeaderDimension = new Dimension(600, 30);
 	public static final Dimension FooterDimension = new Dimension(600, 30);
 	public static final Dimension FrameDimension = new Dimension(600, 550);
-	
+	private final int WIDTH = 640;
+    private final int HEIGHT = 480;
 	private JComponent component;
 	
     public MainFrame() {
@@ -35,7 +36,7 @@ public class MainFrame extends JFrame {
         
         
         setTitle("Guess Who Prototype");
-        setPreferredSize(new Dimension(1024, 768));
+        setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(true);

@@ -44,7 +44,7 @@ public class Description {
     }
 
 
-    String getQuestion() {
+    public String getQuestion() {
         return question;
     }
 

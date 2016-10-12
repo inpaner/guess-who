@@ -5,6 +5,7 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 /**
  * Created by Ivan on 10/12/2016.
@@ -28,7 +29,7 @@ public class MainPanel extends JPanel {
     }
 
 
-    MainPanel() {
+    public MainPanel() {
         setLayout(new MigLayout("wrap 2"));
         // Top candidates panel
         JPanel candidatesPanel = new JPanel();
@@ -40,15 +41,6 @@ public class MainPanel extends JPanel {
         candidatesPanel.add(candidatesLabel);
         candidatesPanel.add(candidatesArea);
         add(candidatesPanel);
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("John");
-        sb.append("\n");
-        sb.append("Alice");
-        sb.append("\n");
-        sb.append("Bob");
-        sb.append("\n");
-        candidatesArea.setText(sb.toString());
 
         // Top descriptions Panel
         JPanel topDescriptionPanel = new JPanel();
@@ -69,7 +61,7 @@ public class MainPanel extends JPanel {
         noTopDescription.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (listener != null) {
+                if (listener == null) {
                     return;
                 }
                 listener.clickedTopNo();
@@ -88,7 +80,7 @@ public class MainPanel extends JPanel {
         yesOtherDescription.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (listener != null) {
+                if (listener == null) {
                     return;
                 }
                 listener.clickedOtherYes(otherDescriptionsBox.getSelectedIndex());
@@ -98,7 +90,7 @@ public class MainPanel extends JPanel {
         noOtherDescription.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (listener != null) {
+                if (listener == null) {
                     return;
                 }
                 listener.clickedOtherNo(otherDescriptionsBox.getSelectedIndex());
@@ -111,15 +103,37 @@ public class MainPanel extends JPanel {
 
         JPanel descriptionsPanel = new JPanel();
         descriptionsPanel.setLayout(new MigLayout("wrap 1"));
-        descriptionsPanel.add(topDescriptionPanel);
-        descriptionsPanel.add(otherDescriptionsPanel);
-        add(descriptionsPanel);
+        descriptionsPanel.add(topDescriptionPanel, "top");
+        descriptionsPanel.add(otherDescriptionsPanel, "top");
+        add(descriptionsPanel, "top");
     }
 
 
     public void setListener(Listener listener) {
         this.listener = listener;
     }
+
+
+    public void setTopDescription(String description) {
+        topDescription.setText(description);
+    }
+
+
+    public void setOtherDescriptions(List<String> descriptions) {
+        for (String description : descriptions) {
+            otherDescriptionsBox.addItem(description);
+        }
+    }
+
+    public void setCandidates(List<String> candidates) {
+        StringBuilder sb = new StringBuilder();
+        for (String candidate : candidates) {
+            sb.append(candidate);
+            sb.append("\n");
+        }
+        candidatesArea.setText(sb.toString());
+    }
+
 
     public interface Listener {
         void clickedTopYes();
