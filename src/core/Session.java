@@ -61,7 +61,9 @@ public final class Session {
         Answer answer = Answer.getInputted(input);
         answerDescription(bestQuestion, answer);
         System.out.println("\n--------");
-        topPersons.forEach(System.out::println);
+        for (Person person : topPersons) {
+            System.out.println(person + " " + person.getScore());
+        }
         System.out.println("\n");
     }
 
@@ -111,16 +113,28 @@ public final class Session {
     public void answerDescription(Description description, Answer answer) {
         askedDescriptions.add(description);
         answers.add(answer);
-        List<Cell> personCells = Cell.getCells(description);
-        personCells = getTopPersonCells(personCells);
+        List<Cell> descriptionCells = Cell.getCells(description);
+        descriptionCells = includeTopPersonOnly(descriptionCells);
         List<Cell> cells = new ArrayList<>();
-        for (Cell cell : personCells) {
-            if (cell.getScore() * answer.getScore() < 0) { // if scores are opposite signs
-                topPersons.remove(cell.getPerson());
+        for (Cell cell : descriptionCells) {
+            Person currentPerson = topPersons.get(topPersons.indexOf(cell.getPerson()));
+            if (cell.getScore() * answer.getScore() >= 0) { // scores are same
+//                topPersons.remove(cell.getPerson());
+                currentPerson.addToScore(Math.abs(answer.getScore()));
+            } else {
+                currentPerson.addToScore(-Math.abs(answer.getScore()));
             }
             cell.addScore(answer.getScore()); // TODO: verify if valid
             cells.add(cell);
         }
+        Collections.sort(topPersons, new Comparator<Person>() {
+            @Override
+            public int compare(Person o1, Person o2) {
+                return o1.getScore() > o2.getScore() ? 1
+                        : o1.getScore() < o2.getScore() ? -1
+                        : 0;
+            }
+        });
         modifiedCells.put(description, cells);
     }
 
@@ -130,9 +144,9 @@ public final class Session {
     }
 
 
-    private List<Cell> getTopPersonCells(List<Cell> personCells) {
+    private List<Cell> includeTopPersonOnly(List<Cell> descriptionCells) {
         List<Cell> filteredCells = new ArrayList<>();
-        for (Cell cell : personCells) {
+        for (Cell cell : descriptionCells) {
             if (topPersons.contains(cell.getPerson())) {
                 filteredCells.add(cell);
             }

@@ -17,6 +17,7 @@ import java.util.Objects;
 public class Person {
     private static List<Person> cache = new ArrayList<>();
     private String name;
+    private double score = 0.0;
 
 
     Person(String name) {
@@ -78,6 +79,14 @@ public class Person {
         return name;
     }
 
+    public void addToScore(double toAdd) {
+        score += toAdd;
+    }
+
+
+    public double getScore() {
+        return score;
+    }
 
     private static Person map(ResultSet rs) {
         Person person = null;
