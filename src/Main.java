@@ -77,7 +77,6 @@ public class Main {
         @Override
         public void clickedOtherNo(int selectedIndex) {
             session.answerDescription(allDescriptions.get(selectedIndex), Answer.get("no"));
-            updateUi();
         }
     }
 }
