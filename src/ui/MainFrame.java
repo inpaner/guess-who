@@ -54,7 +54,18 @@ public class MainFrame extends JFrame {
         Thread controller = new setThread();
         controller.start();
     }
-    
+
+
+    public int getSetWidth() {
+        return WIDTH;
+    }
+
+
+    public int getSetHeight() {
+        return HEIGHT;
+    }
+
+
     private class setThread extends Thread {
         @Override
         public void run() {
