@@ -3,6 +3,7 @@ package ui;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Random;
 
@@ -22,7 +23,6 @@ public class VizPanel extends JPanel {
 
         MainFrame frame = new MainFrame();
         VizPanel center = new VizPanel(frame.getSetWidth(), frame.getSetHeight());
-        System.out.println(frame.getSetWidth());
         frame.setPanel(center);
         center.test();
     }
@@ -31,12 +31,17 @@ public class VizPanel extends JPanel {
         setLayout(null);
         this.width = width;
         this.height = height;
+        RectangleComponent line = new RectangleComponent(2, height);
+        line.setLocation(width / 2 - 1, 0);
+        line.setSize(line.getPreferredSize());
+        add(line);
+        repaint();
     }
 
 
     void test() {
         RectangleComponent rectangle = new RectangleComponent(RECTANGLE_WIDTH, RECTANGLE_HEIGHT);
-        addLeft(rectangle, 0);
+        addLeft(rectangle, 1);
 
         CircleComponent circle = new CircleComponent(CIRCLE_RADIUS);
         addLeft(circle, -1);
@@ -65,11 +70,8 @@ public class VizPanel extends JPanel {
     }
 
 
-
-
     class CircleComponent extends JPanel {
         Ellipse2D.Double circle;
-
         CircleComponent(int radius) {
             circle = new Ellipse2D.Double(0, 0, radius, radius);
             setOpaque(false);
@@ -90,6 +92,7 @@ public class VizPanel extends JPanel {
             g2.fill(circle);
         }
     }
+
 
     class RectangleComponent extends JPanel {
         Rectangle2D.Double rectangle;
