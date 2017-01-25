@@ -29,7 +29,7 @@ public class MainFrame extends JFrame {
                     UIManager.getDefaults().put("TextArea.font", UIManager.getFont("TextField.font"));
                 } 
                 catch (Exception ex) {
-                    ex.printStackTrace();
+//                    ex.printStackTrace();
                 }
             }
         });

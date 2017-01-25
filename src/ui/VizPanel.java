@@ -42,9 +42,11 @@ public class VizPanel extends JPanel {
     void test() {
         RectangleComponent rectangle = new RectangleComponent(RECTANGLE_WIDTH, RECTANGLE_HEIGHT);
         addLeft(rectangle, 1);
+        addRight(rectangle, 0.5);
 
         CircleComponent circle = new CircleComponent(CIRCLE_RADIUS);
         addLeft(circle, -1);
+        addRight(circle, -0.5);
 
     }
 
@@ -56,6 +58,22 @@ public class VizPanel extends JPanel {
         int componentWidth = (int) component.getPreferredSize().getWidth();
         int range = leftWidth - MARGIN * 2 - componentWidth;
         int xCoord = (int) (normalize(location) * range + start);
+        Random random = new Random();
+        int yCoord = random.nextInt(100);
+        component.setLocation(xCoord, yCoord);
+        component.setSize(component.getPreferredSize());
+        add(component);
+        repaint();
+    }
+
+
+    void addRight(JPanel component, double location) {
+        int rightWidth = width / 2;
+        int rightCenter = width * 3 / 4;
+        int start = MARGIN + rightWidth;
+        int componentWidth = (int) component.getPreferredSize().getWidth();
+        int range = rightWidth - MARGIN * 2 - componentWidth;
+        int xCoord = (int) (normalize(-location) * range + start);
         Random random = new Random();
         int yCoord = random.nextInt(100);
         component.setLocation(xCoord, yCoord);
@@ -84,6 +102,7 @@ public class VizPanel extends JPanel {
             return new Dimension(bounds.width, bounds.height);
         }
 
+
         @Override
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
@@ -103,12 +122,14 @@ public class VizPanel extends JPanel {
         }
 
 
+        @Override
         public Dimension getPreferredSize() {
             Rectangle bounds = rectangle.getBounds();
             return new Dimension(bounds.width, bounds.height);
         }
 
 
+        @Override
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g;
@@ -116,7 +137,4 @@ public class VizPanel extends JPanel {
             g2.fill(rectangle);
         }
     }
-
-
-
 }
