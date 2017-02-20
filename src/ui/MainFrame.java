@@ -14,7 +14,7 @@ public class MainFrame extends JFrame {
 	
 	public static final Dimension HeaderDimension = new Dimension(600, 30);
 	public static final Dimension FooterDimension = new Dimension(600, 30);
-	public static final Dimension FrameDimension = new Dimension(600, 550);
+	public static final Dimension FrameDimension = new Dimension(600, 480);
 	private final int WIDTH = 640;
     private final int HEIGHT = 480;
 	private JComponent component;
