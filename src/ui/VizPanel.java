@@ -12,15 +12,14 @@ import java.util.Random;
  */
 public class VizPanel extends JPanel {
     private final int CIRCLE_RADIUS = 10;
-    private final int RECTANGLE_WIDTH = 10;
-    private final int RECTANGLE_HEIGHT = 5;
+    private final int RECTANGLE_WIDTH = 100;
+    private final int RECTANGLE_HEIGHT = 40;
     private final int MARGIN = 5;
+    private final String DEFAULT_TEXT = "DefaultText";
     int width;
     int height;
 
     public static void main(String[] args) {
-
-
         MainFrame frame = new MainFrame();
         VizPanel center = new VizPanel(frame.getSetWidth(), frame.getSetHeight());
         frame.setPanel(center);
@@ -40,7 +39,7 @@ public class VizPanel extends JPanel {
 
 
     void test() {
-        RectangleComponent rectangle = new RectangleComponent(RECTANGLE_WIDTH, RECTANGLE_HEIGHT);
+        RectangleComponent rectangle = new RectangleComponent(RECTANGLE_WIDTH, RECTANGLE_HEIGHT, "hello world");
         addLeft(rectangle, 1);
         addRight(rectangle, 0.5);
 
@@ -115,10 +114,17 @@ public class VizPanel extends JPanel {
 
     class RectangleComponent extends JPanel {
         Rectangle2D.Double rectangle;
+        String text = "";
 
         RectangleComponent(int width, int height) {
+            this(width, height, DEFAULT_TEXT);
+        }
+
+
+        RectangleComponent(int width, int height, String text) {
             rectangle = new Rectangle2D.Double(0, 0, width, height);
             setOpaque(false);
+            this.text = text;
         }
 
 
@@ -133,8 +139,11 @@ public class VizPanel extends JPanel {
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g;
+            FontMetrics fm = g2.getFontMetrics();
             g2.setColor( getForeground() );
-            g2.fill(rectangle);
+            // g2.fill(rectangle);
+            g2.drawRect(10, 10, width, height);
+            g2.drawString(text, 25, 25);
         }
     }
 }
