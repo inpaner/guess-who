@@ -4,6 +4,7 @@ import core.Person;
 import core.Session;
 import ui.MainFrame;
 import ui.MainPanel;
+import ui.VizPanel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ public class Main {
 
     private Session session;
     private MainPanel panel;
+    private VizPanel vizPanel;
     private Description bestDescription;
     private List<Description> allDescriptions;
 
@@ -27,6 +29,10 @@ public class Main {
         MainFrame frame = new MainFrame();
         panel = new MainPanel();
         frame.setPanel(panel);
+        MainFrame vizFrame = new MainFrame();
+        vizPanel = new VizPanel(frame.getSetWidth(), frame.getSetHeight());
+        vizFrame.setPanel(vizPanel);
+
         session = new Session();
         session.reset();
 
@@ -47,9 +53,11 @@ public class Main {
             candidates.add(person.toString());
         }
         panel.setCandidates(candidates);
-
         bestDescription = session.getNewBestDescription();
         panel.setTopDescription(bestDescription.getQuestion());
+
+        vizPanel.clearLeft();
+        vizPanel.addDescriptions(session.getAnsweredDescriptions());
     }
 
 

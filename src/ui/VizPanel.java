@@ -127,9 +127,9 @@ public class VizPanel extends JPanel {
     }
 
 
-    // actual class
+    /* Actual class */
 
-    VizPanel(int width, int height) {
+    public VizPanel(int width, int height) {
         setLayout(null);
         this.width = width;
         this.height = height;

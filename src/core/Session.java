@@ -131,6 +131,9 @@ public final class Session {
         return  topPersons;
     }
 
+    public List<DescriptionAnswer> getAnsweredDescriptions() {
+        return  answeredDescriptions;
+    }
 
     private List<Cell> getTopPersonCells(List<Cell> personCells) {
         List<Cell> filteredCells = new ArrayList<>();
