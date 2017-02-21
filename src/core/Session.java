@@ -8,6 +8,7 @@ import java.util.*;
 public final class Session {
     private List<Description> askedDescriptions = new ArrayList<>();
     private List<Answer> answers = new ArrayList<>();
+    private List<DescriptionAnswer> answeredDescriptions = new ArrayList<>(); // deprecates the two lists above
     private List<Person> topPersons = new ArrayList<>();
     private Map<Description, List<Cell>> modifiedCells = new HashMap<>();
 
@@ -111,6 +112,7 @@ public final class Session {
     public void answerDescription(Description description, Answer answer) {
         askedDescriptions.add(description);
         answers.add(answer);
+        answeredDescriptions.add(new DescriptionAnswer(description, answer));
         List<Cell> personCells = Cell.getCells(description);
         personCells = getTopPersonCells(personCells);
         List<Cell> cells = new ArrayList<>();
@@ -155,4 +157,16 @@ public final class Session {
         }
         return Math.abs(positive + negative);
     }
+
+
+    public static class DescriptionAnswer {
+        public Description description;
+        public Answer answer;
+
+        public DescriptionAnswer(Description description, Answer answer) {
+            this.description = description;
+            this.answer = answer;
+        }
+    }
 }
+

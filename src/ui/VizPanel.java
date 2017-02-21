@@ -1,6 +1,9 @@
 package ui;
 
+import core.Answer;
+import core.Description;
 import core.Person;
+import core.Session;
 
 import javax.swing.*;
 import java.awt.*;
@@ -8,6 +11,8 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+
+import static core.Session.*;
 
 /**
  * Created by Ivan on 1/16/2017.
@@ -30,6 +35,7 @@ public class VizPanel extends JPanel {
         frame.setPanel(center);
 //        center.test();
         center.testPersons();
+        center.testDescriptions();
     }
 
 
@@ -42,6 +48,22 @@ public class VizPanel extends JPanel {
         line.setSize(line.getPreferredSize());
         add(line);
         repaint();
+    }
+
+
+    public void addDescriptions(List<Session.DescriptionAnswer> descriptions) {
+        int total = 0;
+        for (DescriptionAnswer struct : descriptions) {
+            RectangleComponent cell = new RectangleComponent(struct.description.toString());
+            System.out.println(struct.answer.getScore());
+//            double location = normalize(struct.answer.getScore()/4);
+            double location = struct.answer.getScore() / 4;
+            addLeft(cell, location, total);
+            total += 1;
+            if (total >= ROWS) {
+                break;
+            }
+        }
     }
 
 
@@ -103,6 +125,36 @@ public class VizPanel extends JPanel {
         list.add(p10);
         list.add(p11);
         addPersons(list);
+    }
+
+
+    void testDescriptions() {
+        Description d0 = new Description("white");
+        Description d1 = new Description("bald");
+        Description d2 = new Description("male");
+        Description d3 = new Description("old");
+        Description d4 = new Description("glasses");
+        Description d5 = new Description("t-shirt");
+
+        Answer yes = Answer.get("yes");
+        Answer no = Answer.get("no");
+
+        DescriptionAnswer da0 = new DescriptionAnswer(d0, yes);
+        DescriptionAnswer da1 = new DescriptionAnswer(d1, no);
+        DescriptionAnswer da2 = new DescriptionAnswer(d2, yes);
+        DescriptionAnswer da3 = new DescriptionAnswer(d3, yes);
+        DescriptionAnswer da4 = new DescriptionAnswer(d4, no);
+        DescriptionAnswer da5 = new DescriptionAnswer(d5, yes);
+
+        List<DescriptionAnswer> descriptions = new ArrayList<>();
+
+        descriptions.add(da0);
+        descriptions.add(da1);
+        descriptions.add(da2);
+        descriptions.add(da3);
+        descriptions.add(da4);
+        descriptions.add(da5);
+        addDescriptions(descriptions);
     }
 
 
