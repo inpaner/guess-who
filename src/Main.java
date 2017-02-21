@@ -55,9 +55,13 @@ public class Main {
         panel.setCandidates(candidates);
         bestDescription = session.getNewBestDescription();
         panel.setTopDescription(bestDescription.getQuestion());
+        session.getBestDescriptions();
 
         vizPanel.clearLeft();
         vizPanel.addDescriptions(session.getAnsweredDescriptions());
+
+        vizPanel.clearRight();
+        vizPanel.addPersons(session.getTopPersons());
     }
 
 

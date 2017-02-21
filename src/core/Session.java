@@ -101,6 +101,50 @@ public final class Session {
     }
 
 
+    public List<Description> getBestDescriptions() {
+        List<Description> descriptions = Description.getAll();
+//        Collections.shuffle(descriptions); // not sure if necessary
+        List<Double> margins = new ArrayList<>();
+        for (Description description : descriptions) {
+            List<Cell> cells;
+            if (modifiedCells.containsKey(description)) {
+                cells = modifiedCells.get(description);
+            } else {
+                cells = Cell.getCells(description);
+            }
+            List<Cell> filteredCells = new ArrayList<>();
+            for (Cell cell : cells) {
+                if (topPersons.contains(cell.getPerson())) {
+                    filteredCells.add(cell);
+                }
+            }
+            double margin = getMargin(filteredCells);
+            margins.add(margin);
+        }
+        double minMargin = Double.MAX_VALUE;
+        int bestDescIndex = 0;
+        for (int i = 0; i < margins.size(); i++) {
+            if (minMargin > margins.get(i)) {
+                bestDescIndex = i;
+                minMargin = margins.get(i);
+            }
+        }
+
+        Collections.sort(descriptions, new Comparator<Description>() {
+            @Override
+            public int compare(Description left, Description right) {
+                return Double.compare(margins.get(descriptions.indexOf(left)), margins.get(descriptions.indexOf(right)));
+            }
+        });
+
+//        System.out.println("Best: " + descriptions.get(bestDescIndex) + "\n");
+        for (Description description : descriptions) {
+            System.out.println(description);
+        }
+        return descriptions;
+    }
+
+
     public void reset() {
         modifiedCells = new HashMap<>();
         askedDescriptions = new ArrayList<>();
