@@ -25,6 +25,8 @@ public class VizPanel extends JPanel {
     private final int ROWS = 8;
     private final String DEFAULT_TEXT = "DefaultText";
     private final int CELL_GUTTER = 0;
+    private List<RectangleComponent> leftComponents;
+    private List<RectangleComponent> rightComponents;
     int width;
     int height;
 
@@ -36,49 +38,11 @@ public class VizPanel extends JPanel {
 //        center.test();
         center.testPersons();
         center.testDescriptions();
+        center.testClear();
     }
 
 
-    VizPanel(int width, int height) {
-        setLayout(null);
-        this.width = width;
-        this.height = height;
-        RectangleComponent line = new RectangleComponent(2, height);
-        line.setLocation(width / 2 - 1, 0);
-        line.setSize(line.getPreferredSize());
-        add(line);
-        repaint();
-    }
-
-
-    public void addDescriptions(List<Session.DescriptionAnswer> descriptions) {
-        int total = 0;
-        for (DescriptionAnswer struct : descriptions) {
-            RectangleComponent cell = new RectangleComponent(struct.description.toString());
-            System.out.println(struct.answer.getScore());
-//            double location = normalize(struct.answer.getScore()/4);
-            double location = struct.answer.getScore() / 4;
-            addLeft(cell, location, total);
-            total += 1;
-            if (total >= ROWS) {
-                break;
-            }
-        }
-    }
-
-
-    public void addPersons(List<Person> persons) {
-        int total = 0;
-        for (Person person : persons) {
-            RectangleComponent cell = new RectangleComponent(person.toString());
-            addRight(cell, 0, total);
-            total += 1;
-            if (total >= ROWS) {
-                break;
-            }
-        }
-    }
-
+    /* Tests */
 
     void test() {
         RectangleComponent rectangle = new RectangleComponent(RECTANGLE_WIDTH, RECTANGLE_HEIGHT, "bald");
@@ -155,6 +119,79 @@ public class VizPanel extends JPanel {
         descriptions.add(da4);
         descriptions.add(da5);
         addDescriptions(descriptions);
+    }
+
+
+    void testClear() {
+        clearLeft();
+    }
+
+
+    // actual class
+
+    VizPanel(int width, int height) {
+        setLayout(null);
+        this.width = width;
+        this.height = height;
+        RectangleComponent line = new RectangleComponent(2, height);
+        line.setLocation(width / 2 - 1, 0);
+        line.setSize(line.getPreferredSize());
+        add(line);
+        repaint();
+        leftComponents = new ArrayList<>();
+        rightComponents = new ArrayList<>();
+    }
+
+
+    public void addDescriptions(List<Session.DescriptionAnswer> descriptions) {
+        int total = 0;
+        for (DescriptionAnswer struct : descriptions) {
+            RectangleComponent cell = new RectangleComponent(struct.description.toString());
+//            double location = normalize(struct.answer.getScore()/4);
+            double location = struct.answer.getScore() / 4;
+            addLeft(cell, location, total);
+            leftComponents.add(cell);
+            total += 1;
+            if (total >= ROWS) {
+                break;
+            }
+        }
+    }
+
+
+    public void addPersons(List<Person> persons) {
+        int total = 0;
+        for (Person person : persons) {
+            RectangleComponent cell = new RectangleComponent(person.toString());
+            addRight(cell, 0, total);
+            rightComponents.add(cell);
+            total += 1;
+            if (total >= ROWS) {
+                break;
+            }
+        }
+    }
+
+
+    public void clearLeft() {
+        for (RectangleComponent component : leftComponents) {
+            remove(component);
+            System.out.println("removing " + component.text);
+        }
+        leftComponents = new ArrayList<>();
+        revalidate();
+        repaint();
+    }
+
+
+    public void clearRight() {
+
+        for (RectangleComponent component : rightComponents) {
+            remove(component);
+        }
+        rightComponents = new ArrayList<>();
+        revalidate();
+        repaint();
     }
 
 
