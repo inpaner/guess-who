@@ -103,7 +103,7 @@ public final class Session {
 
     public List<Description> getBestDescriptions() {
         List<Description> descriptions = Description.getAll();
-//        Collections.shuffle(descriptions); // not sure if necessary
+        Collections.shuffle(descriptions); // not sure if necessary
         List<Double> margins = new ArrayList<>();
         for (Description description : descriptions) {
             List<Cell> cells;
@@ -120,6 +120,7 @@ public final class Session {
             }
             double margin = getMargin(filteredCells);
             margins.add(margin);
+            System.out.println(description + ": " + margin);
         }
         double minMargin = Double.MAX_VALUE;
         int bestDescIndex = 0;

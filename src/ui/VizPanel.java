@@ -144,15 +144,25 @@ public class VizPanel extends JPanel {
 
 
     public void addDescriptions(List<Session.DescriptionAnswer> descriptions) {
-        int total = 0;
         for (DescriptionAnswer struct : descriptions) {
             RectangleComponent cell = new RectangleComponent(struct.description.toString());
 //            double location = normalize(struct.answer.getScore()/4);
             double location = struct.answer.getScore() / 4;
-            addLeft(cell, location, total);
+            addLeft(cell, location, leftComponents.size());
             leftComponents.add(cell);
-            total += 1;
-            if (total >= ROWS) {
+            if (leftComponents.size() >= ROWS) {
+                break;
+            }
+        }
+    }
+
+
+    public void addExtraDescriptions(List<Description> descriptions) {
+        for (Description description : descriptions) {
+            RectangleComponent cell = new RectangleComponent(description.toString());
+            addLeft(cell, 0, leftComponents.size());
+            leftComponents.add(cell);
+            if (leftComponents.size() >= ROWS) {
                 break;
             }
         }
@@ -160,13 +170,11 @@ public class VizPanel extends JPanel {
 
 
     public void addPersons(List<Person> persons) {
-        int total = 0;
         for (Person person : persons) {
             RectangleComponent cell = new RectangleComponent(person.toString());
-            addRight(cell, 0, total);
+            addRight(cell, 0, rightComponents.size());
             rightComponents.add(cell);
-            total += 1;
-            if (total >= ROWS) {
+            if (rightComponents.size() >= ROWS) {
                 break;
             }
         }
@@ -176,7 +184,6 @@ public class VizPanel extends JPanel {
     public void clearLeft() {
         for (RectangleComponent component : leftComponents) {
             remove(component);
-            System.out.println("removing " + component.text);
         }
         leftComponents = new ArrayList<>();
         revalidate();

@@ -2,6 +2,7 @@ import core.Answer;
 import core.Description;
 import core.Person;
 import core.Session;
+import sun.security.krb5.internal.crypto.Des;
 import ui.MainFrame;
 import ui.MainPanel;
 import ui.VizPanel;
@@ -53,12 +54,16 @@ public class Main {
             candidates.add(person.toString());
         }
         panel.setCandidates(candidates);
-        bestDescription = session.getNewBestDescription();
+
+//        bestDescription = session.getNewBestDescription();
+//        panel.setTopDescription(bestDescription.getQuestion());
+        List<Description> bestDescriptions = session.getBestDescriptions();
+        bestDescription = bestDescriptions.get(0);
         panel.setTopDescription(bestDescription.getQuestion());
-        session.getBestDescriptions();
 
         vizPanel.clearLeft();
         vizPanel.addDescriptions(session.getAnsweredDescriptions());
+        vizPanel.addExtraDescriptions(bestDescriptions);
 
         vizPanel.clearRight();
         vizPanel.addPersons(session.getTopPersons());
@@ -89,6 +94,7 @@ public class Main {
         @Override
         public void clickedOtherNo(int selectedIndex) {
             session.answerDescription(allDescriptions.get(selectedIndex), Answer.get("no"));
+            updateUi();
         }
     }
 }
