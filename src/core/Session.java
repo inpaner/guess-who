@@ -8,6 +8,7 @@ import java.util.*;
 public final class Session {
     private List<Description> askedDescriptions = new ArrayList<>();
     private List<Answer> answers = new ArrayList<>();
+    private List<DescriptionAnswer> answeredDescriptions = new ArrayList<>(); // deprecates the two lists above
     private List<Person> topPersons = new ArrayList<>();
     private Map<Description, List<Cell>> modifiedCells = new HashMap<>();
 
@@ -100,6 +101,51 @@ public final class Session {
     }
 
 
+    public List<Description> getBestDescriptions() {
+        List<Description> descriptions = Description.getAll();
+        Collections.shuffle(descriptions); // not sure if necessary
+        List<Double> margins = new ArrayList<>();
+        for (Description description : descriptions) {
+            List<Cell> cells;
+            if (modifiedCells.containsKey(description)) {
+                cells = modifiedCells.get(description);
+            } else {
+                cells = Cell.getCells(description);
+            }
+            List<Cell> filteredCells = new ArrayList<>();
+            for (Cell cell : cells) {
+                if (topPersons.contains(cell.getPerson())) {
+                    filteredCells.add(cell);
+                }
+            }
+            double margin = getMargin(filteredCells);
+            margins.add(margin);
+            System.out.println(description + ": " + margin);
+        }
+        double minMargin = Double.MAX_VALUE;
+        int bestDescIndex = 0;
+        for (int i = 0; i < margins.size(); i++) {
+            if (minMargin > margins.get(i)) {
+                bestDescIndex = i;
+                minMargin = margins.get(i);
+            }
+        }
+
+        Collections.sort(descriptions, new Comparator<Description>() {
+            @Override
+            public int compare(Description left, Description right) {
+                return Double.compare(margins.get(descriptions.indexOf(left)), margins.get(descriptions.indexOf(right)));
+            }
+        });
+
+//        System.out.println("Best: " + descriptions.get(bestDescIndex) + "\n");
+        for (Description description : descriptions) {
+            System.out.println(description);
+        }
+        return descriptions;
+    }
+
+
     public void reset() {
         modifiedCells = new HashMap<>();
         askedDescriptions = new ArrayList<>();
@@ -111,6 +157,7 @@ public final class Session {
     public void answerDescription(Description description, Answer answer) {
         askedDescriptions.add(description);
         answers.add(answer);
+        answeredDescriptions.add(new DescriptionAnswer(description, answer));
         List<Cell> personCells = Cell.getCells(description);
         personCells = getTopPersonCells(personCells);
         List<Cell> cells = new ArrayList<>();
@@ -129,6 +176,9 @@ public final class Session {
         return  topPersons;
     }
 
+    public List<DescriptionAnswer> getAnsweredDescriptions() {
+        return  answeredDescriptions;
+    }
 
     private List<Cell> getTopPersonCells(List<Cell> personCells) {
         List<Cell> filteredCells = new ArrayList<>();
@@ -155,4 +205,16 @@ public final class Session {
         }
         return Math.abs(positive + negative);
     }
+
+
+    public static class DescriptionAnswer {
+        public Description description;
+        public Answer answer;
+
+        public DescriptionAnswer(Description description, Answer answer) {
+            this.description = description;
+            this.answer = answer;
+        }
+    }
 }
+

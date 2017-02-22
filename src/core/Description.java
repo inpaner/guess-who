@@ -71,7 +71,7 @@ public class Description {
     }
 
 
-    Description(String description) {
+    public Description(String description) {
         this(description, "", "", "");
     }
 

@@ -54,7 +54,7 @@ public class Answer {
     }
 
 
-    double getScore() {
+    public double getScore() {
         return score;
     }
 
