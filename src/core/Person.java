@@ -14,9 +14,10 @@ import java.util.Objects;
 /**
  * Created by Ivan Paner on 6/29/2016.
  */
-public class Person {
+public class Person implements Comparable<Person> {
     private static List<Person> cache = new ArrayList<>();
     private String name;
+    private double score = 0;
 
 
     public Person(String name) {
@@ -78,6 +79,14 @@ public class Person {
         return name;
     }
 
+    void addScore(double score) {
+        this.score += score;
+    }
+
+    public double getScore() {
+        return score;
+    }
+
 
     private static Person map(ResultSet rs) {
         Person person = null;
@@ -110,6 +119,12 @@ public class Person {
 
     @Override
     public String toString() {
-        return name;
+        return name + ": " + score;
+    }
+
+
+    @Override
+    public int compareTo(Person other) {
+        return Double.compare(this.score, other.score);
     }
 }

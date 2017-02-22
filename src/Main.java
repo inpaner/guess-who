@@ -50,7 +50,7 @@ public class Main {
 
     private void updateUi() {
         List<String> candidates = new ArrayList<>();
-        for (Person person : session.getTopPersons()) {
+        for (Person person : session.getAllPersons()) {
             candidates.add(person.toString());
         }
         panel.setCandidates(candidates);
@@ -66,7 +66,7 @@ public class Main {
         vizPanel.addExtraDescriptions(bestDescriptions);
 
         vizPanel.clearRight();
-        vizPanel.addPersons(session.getTopPersons());
+        vizPanel.addPersons(session.getAllPersons());
     }
 
 
