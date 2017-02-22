@@ -159,11 +159,14 @@ public final class Session {
         personCells = getTopPersonCells(personCells);
         List<Cell> finishedCells = new ArrayList<>();
         for (Cell cell : personCells) {
-//            if (cell.getScore() * answer.getScore() < 0) { // if scores are opposite signs
-//                topPersons.remove(cell.getPerson());
-//            }
             Person currentPerson = allPersons.get(allPersons.indexOf(cell.getPerson()));
-            currentPerson.addScore(cell.getScore());
+
+            if (answer.getScore() > 0) { // if scores are same signs
+                currentPerson.addScore(cell.getScore());
+            } else {
+                currentPerson.addScore(-cell.getScore());
+            }
+
             cell.addScore(answer.getScore()); // TODO: verify if valid
             finishedCells.add(cell);
         }
@@ -176,7 +179,6 @@ public final class Session {
         List<Person> filteredPersons = new ArrayList<>();
         Collections.sort(allPersons, Collections.reverseOrder());
         int totalToFilter = totalToFilter();
-        System.out.println(totalToFilter);
         for (int i = 0; i < totalToFilter; i++) {
             filteredPersons.add(allPersons.get(i));
         }
@@ -204,9 +206,9 @@ public final class Session {
 
     private List<Cell> getTopPersonCells(List<Cell> personCells) {
         List<Cell> filteredCells = new ArrayList<>();
-        List<Person> topPersons = getTopPersons();
+//        List<Person> topPersons = getTopPersons();
         for (Cell cell : personCells) {
-            if (topPersons.contains(cell.getPerson())) {
+            if (allPersons.contains(cell.getPerson())) {
                 filteredCells.add(cell);
             }
         }
@@ -240,4 +242,3 @@ public final class Session {
         }
     }
 }
-
