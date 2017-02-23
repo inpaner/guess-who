@@ -124,5 +124,8 @@ public class Answer {
         return Objects.hash(answer);
     }
 
-
+    @Override
+    public String toString() {
+        return answer;
+    }
 }
