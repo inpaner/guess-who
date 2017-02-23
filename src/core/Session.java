@@ -6,10 +6,10 @@ import java.util.*;
  * Created by Ivan Paner on 7/13/2016.
  */
 public final class Session {
-    private List<Description> askedDescriptions = new ArrayList<>();
-    private List<Answer> answers = new ArrayList<>();
+    private final double DECAY = 0.7; // higher means more included in toplist
+    private List<Person> allPersons = new ArrayList<>();
     private List<DescriptionAnswer> answeredDescriptions = new ArrayList<>(); // deprecates the two lists above
-    private List<Person> topPersons = new ArrayList<>();
+    private Map<Description, Answer> answeredDescriptionsMap = new HashMap<>(); // why didn't i do this first
     private Map<Description, List<Cell>> modifiedCells = new HashMap<>();
 
 
@@ -26,8 +26,8 @@ public final class Session {
 
 
     private void testOneCycle() {
-        topPersons = Person.getAll();
-        topPersons.forEach(System.out::println);
+        allPersons = Person.getAll();
+        allPersons.forEach(System.out::println);
         Description bestQuestion = getNewBestDescription();
         System.out.println(bestQuestion.getQuestion());
         Answer answer = Answer.get("no");
@@ -38,15 +38,15 @@ public final class Session {
             }
         }
         bestQuestion = getNewBestDescription();
-        topPersons.forEach(System.out::println);
+        allPersons.forEach(System.out::println);
         System.out.println(bestQuestion.getQuestion());
     }
 
 
     private void testResponseCycles() {
         // setup
-        topPersons = Person.getAll();
-        topPersons.forEach(System.out::println);
+        allPersons = Person.getAll();
+        allPersons.forEach(System.out::println);
         System.out.println("\n");
         while (true) {
             performCycle();
@@ -62,7 +62,7 @@ public final class Session {
         Answer answer = Answer.getInputted(input);
         answerDescription(bestQuestion, answer);
         System.out.println("\n--------");
-        topPersons.forEach(System.out::println);
+        allPersons.forEach(System.out::println);
         System.out.println("\n");
     }
 
@@ -79,6 +79,7 @@ public final class Session {
                 cells = Cell.getCells(description);
             }
             List<Cell> filteredCells = new ArrayList<>();
+            List<Person> topPersons = getTopPersons();
             for (Cell cell : cells) {
                 if (topPersons.contains(cell.getPerson())) {
                     filteredCells.add(cell);
@@ -113,6 +114,7 @@ public final class Session {
                 cells = Cell.getCells(description);
             }
             List<Cell> filteredCells = new ArrayList<>();
+            List<Person> topPersons = getTopPersons();
             for (Cell cell : cells) {
                 if (topPersons.contains(cell.getPerson())) {
                     filteredCells.add(cell);
@@ -138,43 +140,65 @@ public final class Session {
             }
         });
 
-//        System.out.println("Best: " + descriptions.get(bestDescIndex) + "\n");
-        for (Description description : descriptions) {
-            System.out.println(description);
-        }
+        System.out.println(descriptions.get(0));
         return descriptions;
     }
 
 
     public void reset() {
         modifiedCells = new HashMap<>();
-        askedDescriptions = new ArrayList<>();
-        answers = new ArrayList<>();
-        topPersons = Person.getAll();
+        answeredDescriptions = new ArrayList<>();
+        allPersons = Person.getAll();
     }
 
 
     public void answerDescription(Description description, Answer answer) {
-        askedDescriptions.add(description);
-        answers.add(answer);
         answeredDescriptions.add(new DescriptionAnswer(description, answer));
+        answeredDescriptionsMap.put(description, answer);
         List<Cell> personCells = Cell.getCells(description);
         personCells = getTopPersonCells(personCells);
-        List<Cell> cells = new ArrayList<>();
+        List<Cell> finishedCells = new ArrayList<>();
         for (Cell cell : personCells) {
-            if (cell.getScore() * answer.getScore() < 0) { // if scores are opposite signs
-                topPersons.remove(cell.getPerson());
+            Person currentPerson = allPersons.get(allPersons.indexOf(cell.getPerson()));
+
+            if (answer.getScore() > 0) { // if scores are same signs
+                currentPerson.addScore(cell.getScore());
+            } else {
+                currentPerson.addScore(-cell.getScore());
             }
+
             cell.addScore(answer.getScore()); // TODO: verify if valid
-            cells.add(cell);
+            finishedCells.add(cell);
         }
-        modifiedCells.put(description, cells);
+        modifiedCells.put(description, finishedCells);
     }
 
 
     public List<Person> getTopPersons() {
-        return  topPersons;
+        // filter via decay
+        List<Person> filteredPersons = new ArrayList<>();
+        Collections.sort(allPersons, Collections.reverseOrder());
+        int totalToFilter = totalToFilter();
+        for (int i = 0; i < totalToFilter; i++) {
+            filteredPersons.add(allPersons.get(i));
+        }
+        return  filteredPersons;
     }
+
+
+    private int totalToFilter() {
+        int total = (int) (Math.pow(DECAY, answeredDescriptionsMap.size()) * allPersons.size());
+        if (total < 3) {
+            total = 3;
+        }
+        return total;
+    }
+
+    public List<Person> getAllPersons() {
+        Collections.sort(allPersons, Collections.reverseOrder());
+        return  allPersons;
+    }
+
 
     public List<DescriptionAnswer> getAnsweredDescriptions() {
         return  answeredDescriptions;
@@ -182,8 +206,9 @@ public final class Session {
 
     private List<Cell> getTopPersonCells(List<Cell> personCells) {
         List<Cell> filteredCells = new ArrayList<>();
+//        List<Person> topPersons = getTopPersons();
         for (Cell cell : personCells) {
-            if (topPersons.contains(cell.getPerson())) {
+            if (allPersons.contains(cell.getPerson())) {
                 filteredCells.add(cell);
             }
         }
@@ -217,4 +242,3 @@ public final class Session {
         }
     }
 }
-

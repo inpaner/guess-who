@@ -170,9 +170,21 @@ public class VizPanel extends JPanel {
 
 
     public void addPersons(List<Person> persons) {
+        double min = Double.MAX_VALUE;
+        double max = Double.MIN_VALUE;
+        for (Person person : persons) {
+            if (person.getScore() > max) {
+                max = person.getScore();
+            }
+            if (person.getScore() < min) {
+                min = person.getScore();
+            }
+        }
+
         for (Person person : persons) {
             RectangleComponent cell = new RectangleComponent(person.toString());
-            addRight(cell, 0, rightComponents.size());
+            double location = (person.getScore() - min) / (max - min);
+            addRight(cell, location, rightComponents.size());
             rightComponents.add(cell);
             if (rightComponents.size() >= ROWS) {
                 break;
@@ -237,7 +249,11 @@ public class VizPanel extends JPanel {
         repaint();
     }
 
-
+    /**
+     * Converts a [-1,1] value to [0,1]
+     * @param location
+     * @return
+     */
     double normalize(double location) {
         return (location + 1) / 2;
     }
