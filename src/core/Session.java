@@ -153,9 +153,8 @@ public final class Session {
 
     public void answerDescription(Description description, Answer answer) {
         if (answeredDescriptionsMap.containsKey(description)) {
-            changeAnswer(description, answer);
+            undoAnswer(description);
         }
-
         answeredDescriptionsMap.put(description, answer);
         List<Cell> personCells = Cell.getCells(description);
         personCells = getTopPersonCells(personCells);
@@ -174,7 +173,7 @@ public final class Session {
     }
 
 
-    private void changeAnswer(Description description, Answer answer) {
+    private void undoAnswer(Description description) {
         // Undo the added scores to the persons
         Answer oldAnswer = answeredDescriptionsMap.get(description);
         List<Cell> oldFinishedCells = modifiedCells.get(description);
@@ -187,6 +186,16 @@ public final class Session {
                 currentPerson.addScore(oldCell.getScore());
             }
         }
+    }
+
+
+    public void removeAnswer(Description description) {
+        if (!answeredDescriptionsMap.containsKey(description)) {
+            return;
+        }
+        undoAnswer(description);
+        modifiedCells.remove(description);
+        answeredDescriptionsMap.remove(description);
     }
 
 

@@ -96,6 +96,12 @@ public class Main {
             session.answerDescription(allDescriptions.get(selectedIndex), Answer.get("no"));
             updateUi();
         }
+
+        @Override
+        public void clickedRemove(int selectedIndex) {
+            session.removeAnswer(allDescriptions.get(selectedIndex));
+            updateUi();
+        }
     }
 }
 
