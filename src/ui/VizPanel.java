@@ -10,7 +10,9 @@ import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static core.Session.*;
 
@@ -110,14 +112,15 @@ public class VizPanel extends JPanel {
         DescriptionAnswer da4 = new DescriptionAnswer(d4, no);
         DescriptionAnswer da5 = new DescriptionAnswer(d5, yes);
 
-        List<DescriptionAnswer> descriptions = new ArrayList<>();
 
-        descriptions.add(da0);
-        descriptions.add(da1);
-        descriptions.add(da2);
-        descriptions.add(da3);
-        descriptions.add(da4);
-        descriptions.add(da5);
+        Map<Description, Answer> descriptions = new HashMap<>();
+
+        descriptions.put(d0, yes);
+        descriptions.put(d1, no);
+        descriptions.put(d2, yes);
+        descriptions.put(d3, yes);
+        descriptions.put(d4, no);
+        descriptions.put(d5, yes);
         addDescriptions(descriptions);
     }
 
@@ -143,11 +146,11 @@ public class VizPanel extends JPanel {
     }
 
 
-    public void addDescriptions(List<Session.DescriptionAnswer> descriptions) {
-        for (DescriptionAnswer struct : descriptions) {
-            RectangleComponent cell = new RectangleComponent(struct.description.toString());
+    public void addDescriptions(Map<Description, Answer> descriptions) {
+        for (Description description : descriptions.keySet()) {
+            RectangleComponent cell = new RectangleComponent(description.toString());
 //            double location = normalize(struct.answer.getScore()/4);
-            double location = struct.answer.getScore() / 4;
+            double location = descriptions.get(description).getScore() / 4;
             addLeft(cell, location, leftComponents.size());
             leftComponents.add(cell);
             if (leftComponents.size() >= ROWS) {

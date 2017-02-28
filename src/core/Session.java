@@ -8,7 +8,6 @@ import java.util.*;
 public final class Session {
     private final double DECAY = 0.7; // higher means more included in toplist
     private List<Person> allPersons = new ArrayList<>();
-    private List<DescriptionAnswer> answeredDescriptions = new ArrayList<>(); // deprecates the two lists above
     private Map<Description, Answer> answeredDescriptionsMap = new HashMap<>(); // why didn't i do this first
     private Map<Description, List<Cell>> modifiedCells = new HashMap<>();
 
@@ -122,7 +121,7 @@ public final class Session {
             }
             double margin = getMargin(filteredCells);
             margins.add(margin);
-            System.out.println(description + ": " + margin);
+//            System.out.println(description + ": " + margin);
         }
         double minMargin = Double.MAX_VALUE;
         int bestDescIndex = 0;
@@ -147,30 +146,56 @@ public final class Session {
 
     public void reset() {
         modifiedCells = new HashMap<>();
-        answeredDescriptions = new ArrayList<>();
+        answeredDescriptionsMap = new HashMap<>();
         allPersons = Person.getAll();
     }
 
 
     public void answerDescription(Description description, Answer answer) {
-        answeredDescriptions.add(new DescriptionAnswer(description, answer));
+        if (answeredDescriptionsMap.containsKey(description)) {
+            undoAnswer(description);
+        }
         answeredDescriptionsMap.put(description, answer);
         List<Cell> personCells = Cell.getCells(description);
         personCells = getTopPersonCells(personCells);
         List<Cell> finishedCells = new ArrayList<>();
         for (Cell cell : personCells) {
             Person currentPerson = allPersons.get(allPersons.indexOf(cell.getPerson()));
-
-            if (answer.getScore() > 0) { // if scores are same signs
+            if (answer.getScore() > 0) {
                 currentPerson.addScore(cell.getScore());
             } else {
                 currentPerson.addScore(-cell.getScore());
             }
-
             cell.addScore(answer.getScore()); // TODO: verify if valid
             finishedCells.add(cell);
         }
         modifiedCells.put(description, finishedCells);
+    }
+
+
+    private void undoAnswer(Description description) {
+        // Undo the added scores to the persons
+        Answer oldAnswer = answeredDescriptionsMap.get(description);
+        List<Cell> oldFinishedCells = modifiedCells.get(description);
+        for (Cell oldCell : oldFinishedCells) {
+            Person currentPerson = allPersons.get(allPersons.indexOf(oldCell.getPerson()));
+            oldCell.addScore(-oldAnswer.getScore());
+            if (oldAnswer.getScore() > 0) {
+                currentPerson.addScore(-oldCell.getScore());
+            } else {
+                currentPerson.addScore(oldCell.getScore());
+            }
+        }
+    }
+
+
+    public void removeAnswer(Description description) {
+        if (!answeredDescriptionsMap.containsKey(description)) {
+            return;
+        }
+        undoAnswer(description);
+        modifiedCells.remove(description);
+        answeredDescriptionsMap.remove(description);
     }
 
 
@@ -200,8 +225,8 @@ public final class Session {
     }
 
 
-    public List<DescriptionAnswer> getAnsweredDescriptions() {
-        return  answeredDescriptions;
+    public Map<Description, Answer> getAnsweredDescriptions() {
+        return  answeredDescriptionsMap;
     }
 
     private List<Cell> getTopPersonCells(List<Cell> personCells) {

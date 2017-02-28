@@ -19,6 +19,7 @@ public class MainPanel extends JPanel {
     private JButton noTopDescription;
     private JButton yesOtherDescription;
     private JButton noOtherDescription;
+    private JButton removeDescription;
     private Listener listener;
 
 
@@ -96,10 +97,22 @@ public class MainPanel extends JPanel {
                 listener.clickedOtherNo(otherDescriptionsBox.getSelectedIndex());
             }
         });
+        removeDescription = new JButton("Remove");
+        removeDescription.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (listener == null) {
+                    return;
+                }
+                listener.clickedRemove(otherDescriptionsBox.getSelectedIndex());
+            }
+        });
+
         otherDescriptionsPanel.add(otherDescriptionsLabel);
         otherDescriptionsPanel.add(otherDescriptionsBox);
-        otherDescriptionsPanel.add(yesOtherDescription, "span, split 2");
+        otherDescriptionsPanel.add(yesOtherDescription, "span, split 3");
         otherDescriptionsPanel.add(noOtherDescription);
+        otherDescriptionsPanel.add(removeDescription);
 
         JPanel descriptionsPanel = new JPanel();
         descriptionsPanel.setLayout(new MigLayout("wrap 1"));
@@ -143,6 +156,8 @@ public class MainPanel extends JPanel {
         void clickedOtherYes(int selectedIndex);
 
         void clickedOtherNo(int selectedIndex);
+
+        void clickedRemove(int selectedIndex);
     }
 
 }
