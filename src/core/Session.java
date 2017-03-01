@@ -15,7 +15,8 @@ public final class Session {
     public static void main(String[] args) {
 //        new Session().testGetBestQuestion();
 //        new Session().testOneCycle();
-        new Session().testResponseCycles();
+//        new Session().testResponseCycles();
+        new Session().testGetBestDescriptions();
     }
 
         private void testGetBestQuestion() {
@@ -66,6 +67,25 @@ public final class Session {
     }
 
 
+    private void testGetBestDescriptions() {
+        allPersons = Person.getAll();
+        int i = 0;
+        List<Person> selectedPersons = new ArrayList<>();
+        List<Person> unselectedPersons = new ArrayList<>();
+        for (Person person : allPersons) {
+            if (i <= 2) {
+                selectedPersons.add(person);
+                System.out.println("selected: " + person);
+            } else {
+                unselectedPersons.add(person);
+            }
+            i++;
+        }
+        List<Description> best = getBestDescriptions(selectedPersons, unselectedPersons);
+    }
+
+
+    @Deprecated
     public Description getNewBestDescription() {
         List<Description> descriptions = Description.getAll();
         Collections.shuffle(descriptions); // not sure if necessary
@@ -104,7 +124,7 @@ public final class Session {
     public List<Description> getBestDescriptions() {
         List<Description> descriptions = Description.getAll();
         Collections.shuffle(descriptions); // not sure if necessary
-        List<Double> margins = new ArrayList<>();
+        List<DescriptionMargin> dms = new ArrayList<>();
         for (Description description : descriptions) {
             List<Cell> cells;
             if (modifiedCells.containsKey(description)) {
@@ -120,27 +140,81 @@ public final class Session {
                 }
             }
             double margin = getMargin(filteredCells);
-            margins.add(margin);
-//            System.out.println(description + ": " + margin);
-        }
-        double minMargin = Double.MAX_VALUE;
-        int bestDescIndex = 0;
-        for (int i = 0; i < margins.size(); i++) {
-            if (minMargin > margins.get(i)) {
-                bestDescIndex = i;
-                minMargin = margins.get(i);
-            }
+            System.out.println(description + ": " + margin);
+            dms.add(new DescriptionMargin(description, margin));
         }
 
+        Collections.sort(dms);
+
+        List<Description> sortedDescriptions = new ArrayList<>();
+        for (DescriptionMargin dm : dms) {
+            sortedDescriptions.add(dm.description);
+        }
+        System.out.println(sortedDescriptions.get(0));
+
+        return sortedDescriptions;
+    }
+
+
+    public List<Description> getBestDescriptions(List<Person> selectedPersons, List<Person> unselectedPersons) {
+        List<Description> descriptions = Description.getAll();
+//        Collections.shuffle(descriptions); // not sure if necessary
+        List<Double> margins = new ArrayList<>();
+        List<DescriptionMargin> dms = new ArrayList<>();
+        for (Description description : descriptions) {
+            List<Cell> cells;
+            if (modifiedCells.containsKey(description)) {
+                cells = modifiedCells.get(description);
+            } else {
+                cells = Cell.getCells(description);
+            }
+            List<Cell> selectedPersonCells = new ArrayList<>();
+            List<Cell> unselectedPersonCells = new ArrayList<>();
+            for (Cell cell : cells) {
+                if (selectedPersons.contains(cell.getPerson())) {
+                    selectedPersonCells.add(cell);
+                } else if (unselectedPersons.contains(cell.getPerson())) {
+                    unselectedPersonCells.add(cell);
+                }
+            }
+            double margin = getMargin(selectedPersonCells, unselectedPersonCells);
+            margins.add(margin);
+            dms.add(new DescriptionMargin(description, margin));
+//            System.out.println(description + ": " + margin);
+        }
         Collections.sort(descriptions, new Comparator<Description>() {
             @Override
             public int compare(Description left, Description right) {
                 return Double.compare(margins.get(descriptions.indexOf(left)), margins.get(descriptions.indexOf(right)));
             }
         });
-
-        System.out.println(descriptions.get(0));
+        Collections.sort(dms, Collections.reverseOrder());
+        for (DescriptionMargin dm : dms) {
+            System.out.println(dm);
+        }
+//        Collections.reverse(descriptions);
+        System.out.println(dms.get(0));
         return descriptions;
+    }
+
+    private class DescriptionMargin implements Comparable<DescriptionMargin> {
+        Description description;
+        double margin;
+
+        DescriptionMargin(Description description, double margin) {
+            this.description = description;
+            this.margin = margin;
+        }
+
+        @Override
+        public int compareTo(DescriptionMargin other) {
+            return Double.compare(this.margin, other.margin);
+        }
+
+        @Override
+        public String toString() {
+            return description + ": " + margin;
+        }
     }
 
 
@@ -256,6 +330,19 @@ public final class Session {
         return Math.abs(positive + negative);
     }
 
+
+    private double getMargin(List<Cell> selectedCells, List<Cell> unselelctedCells) {
+        double selectedCellsMargin = 0;
+        double unselectedCellsMargin = 0;
+
+        for (Cell cell : selectedCells) {
+            selectedCellsMargin += cell.getScore();
+        }
+        for (Cell cell : unselelctedCells) {
+            unselectedCellsMargin += cell.getScore();
+        }
+        return Math.abs(selectedCellsMargin - unselectedCellsMargin);
+    }
 
     public static class DescriptionAnswer {
         public Description description;
