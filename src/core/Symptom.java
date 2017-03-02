@@ -47,7 +47,8 @@ public class Symptom {
 
 
     public String getQuestion() {
-        return question;
+        return id;
+        // return question;
     }
 
 
