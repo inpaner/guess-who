@@ -23,7 +23,7 @@ public class Rule {
     private int value;
     private Status status;
     private List<Symptom> symptoms = new ArrayList<>();
-    private Rule parent;
+    private List<Rule> parents = new ArrayList<>();
     private String parentCondition;
 
 
@@ -72,7 +72,7 @@ public class Rule {
                 Rule child = get(rs.getString("rule_id"));
                 Rule parent = get(rs.getString("parent"));
                 String condition = rs.getString("condition");
-                child.parent = parent;
+                child.parents.add(parent);
                 child.parentCondition = condition;
             }
 

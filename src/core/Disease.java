@@ -16,7 +16,7 @@ public class Disease implements Comparable<Disease> {
     private static Map<String, Disease> cache = new HashMap<>();
     private String id;
     private double score = 0;
-    private Rule parent;
+    private List<Rule> parents = new ArrayList<>();
     private String parentCondition;
 
 
@@ -28,7 +28,7 @@ public class Disease implements Comparable<Disease> {
         new Session();
         List<Disease> diseases = Disease.getAll();
         for (Disease disease : diseases) {
-            System.out.println(disease.parent);
+            System.out.println(disease.parents);
         }
     }
 
@@ -94,7 +94,7 @@ public class Disease implements Comparable<Disease> {
                 Rule parent = Rule.get(rs.getString("parent"));
                 Disease disease = get(rs.getString("disease_id"));
                 String condition = rs.getString("condition");
-                disease.parent = parent;
+                disease.parents.add(parent);
                 disease.parentCondition = condition;
             }
         } catch (SQLException e) {
