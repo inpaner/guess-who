@@ -16,23 +16,23 @@ public class RecordUpdater {
 
 
     void updateAll() {
-        for (Person person : Person.getAll()) {
-            updatePerson(person);
+        for (Disease disease : Disease.getAll()) {
+            updatePerson(disease);
         }
 
     }
 
 
-    void updatePerson(Person person) {
-        Record record = Record.get(person);
-        Map<Description, Boolean> recordDescriptions = record.getDescriptionAnswers();
-        List<Description> allDescriptions = Description.getAll();
-        for (Description description : allDescriptions) {
+    void updatePerson(Disease disease) {
+        Record record = Record.get(disease);
+        Map<Symptom, Boolean> recordDescriptions = record.getDescriptionAnswers();
+        List<Symptom> allSymptoms = Symptom.getAll();
+        for (Symptom symptom : allSymptoms) {
             double score = -4;
-            if (recordDescriptions.containsKey(description)) {
-                score = getScore(recordDescriptions.get(description));
+            if (recordDescriptions.containsKey(symptom)) {
+                score = getScore(recordDescriptions.get(symptom));
             }
-            Cell toUpdate = new Cell(person, description, score);
+            Cell toUpdate = new Cell(disease, symptom, score);
             toUpdate.updateCell();
         }
     }

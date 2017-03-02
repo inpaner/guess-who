@@ -1,8 +1,7 @@
 import core.Answer;
-import core.Description;
-import core.Person;
+import core.Symptom;
+import core.Disease;
 import core.Session;
-import sun.security.krb5.internal.crypto.Des;
 import ui.MainFrame;
 import ui.MainPanel;
 import ui.VizPanel;
@@ -18,8 +17,8 @@ public class Main {
     private Session session;
     private MainPanel panel;
     private VizPanel vizPanel;
-    private Description bestDescription;
-    private List<Description> allDescriptions;
+    private Symptom bestSymptom;
+    private List<Symptom> allSymptoms;
 
     public static void main(String[] args) {
         new Main();
@@ -39,9 +38,9 @@ public class Main {
 
         updateUi();
         List<String> descriptionStrings = new ArrayList<>();
-        allDescriptions = Description.getAll();
-        for (Description description : allDescriptions) {
-            descriptionStrings.add(description.toString());
+        allSymptoms = Symptom.getAll();
+        for (Symptom symptom : allSymptoms) {
+            descriptionStrings.add(symptom.toString());
         }
         panel.setOtherDescriptions(descriptionStrings);
         panel.setListener(new PanelListener());
@@ -50,23 +49,23 @@ public class Main {
 
     private void updateUi() {
         List<String> candidates = new ArrayList<>();
-        for (Person person : session.getAllPersons()) {
-            candidates.add(person.toString());
+        for (Disease disease : session.getAllDiseases()) {
+            candidates.add(disease.toString());
         }
         panel.setCandidates(candidates);
 
-//        bestDescription = session.getNewBestDescription();
-//        panel.setTopDescription(bestDescription.getQuestion());
-        List<Description> bestDescriptions = session.getBestDescriptions();
-        bestDescription = bestDescriptions.get(0);
-        panel.setTopDescription(bestDescription.getQuestion());
+//        bestSymptom = session.getNewBestDescription();
+//        panel.setTopDescription(bestSymptom.getQuestion());
+        List<Symptom> bestSymptoms = session.getBestDescriptions();
+        bestSymptom = bestSymptoms.get(0);
+        panel.setTopDescription(bestSymptom.getQuestion());
 
         vizPanel.clearLeft();
         vizPanel.addDescriptions(session.getAnsweredDescriptions());
-        vizPanel.addExtraDescriptions(bestDescriptions);
+        vizPanel.addExtraDescriptions(bestSymptoms);
 
         vizPanel.clearRight();
-        vizPanel.addPersons(session.getAllPersons());
+        vizPanel.addPersons(session.getAllDiseases());
     }
 
 
@@ -74,32 +73,32 @@ public class Main {
 
         @Override
         public void clickedTopYes() {
-            session.answerDescription(bestDescription, Answer.get("yes"));
+            session.answerDescription(bestSymptom, Answer.get("yes"));
             updateUi();
         }
 
 
         @Override
         public void clickedTopNo() {
-            session.answerDescription(bestDescription, Answer.get("no"));
+            session.answerDescription(bestSymptom, Answer.get("no"));
             updateUi();
         }
 
         @Override
         public void clickedOtherYes(int selectedIndex) {
-            session.answerDescription(allDescriptions.get(selectedIndex), Answer.get("yes"));
+            session.answerDescription(allSymptoms.get(selectedIndex), Answer.get("yes"));
             updateUi();
         }
 
         @Override
         public void clickedOtherNo(int selectedIndex) {
-            session.answerDescription(allDescriptions.get(selectedIndex), Answer.get("no"));
+            session.answerDescription(allSymptoms.get(selectedIndex), Answer.get("no"));
             updateUi();
         }
 
         @Override
         public void clickedRemove(int selectedIndex) {
-            session.removeAnswer(allDescriptions.get(selectedIndex));
+            session.removeAnswer(allSymptoms.get(selectedIndex));
             updateUi();
         }
     }

@@ -1,9 +1,8 @@
 package ui;
 
 import core.Answer;
-import core.Description;
-import core.Person;
-import core.Session;
+import core.Symptom;
+import core.Disease;
 
 import javax.swing.*;
 import java.awt.*;
@@ -64,20 +63,20 @@ public class VizPanel extends JPanel {
 
 
     void testPersons() {
-        Person p0 = new Person("Alice");
-        Person p1 = new Person("Bob");
-        Person p2 = new Person("Carol");
-        Person p3 = new Person("Dan");
-        Person p4 = new Person("Eve");
-        Person p5 = new Person("Frank");
-        Person p6 = new Person("Grace");
-        Person p7 = new Person("Heidi");
-        Person p8 = new Person("Iris");
-        Person p9 = new Person("Juliet");
-        Person p10 = new Person("Karen");
-        Person p11 = new Person("Larry");
+        Disease p0 = new Disease("Alice");
+        Disease p1 = new Disease("Bob");
+        Disease p2 = new Disease("Carol");
+        Disease p3 = new Disease("Dan");
+        Disease p4 = new Disease("Eve");
+        Disease p5 = new Disease("Frank");
+        Disease p6 = new Disease("Grace");
+        Disease p7 = new Disease("Heidi");
+        Disease p8 = new Disease("Iris");
+        Disease p9 = new Disease("Juliet");
+        Disease p10 = new Disease("Karen");
+        Disease p11 = new Disease("Larry");
 
-        List<Person> list = new ArrayList<>();
+        List<Disease> list = new ArrayList<>();
         list.add(p0);
         list.add(p1);
         list.add(p2);
@@ -95,12 +94,12 @@ public class VizPanel extends JPanel {
 
 
     void testDescriptions() {
-        Description d0 = new Description("white");
-        Description d1 = new Description("bald");
-        Description d2 = new Description("male");
-        Description d3 = new Description("old");
-        Description d4 = new Description("glasses");
-        Description d5 = new Description("t-shirt");
+        Symptom d0 = new Symptom("white");
+        Symptom d1 = new Symptom("bald");
+        Symptom d2 = new Symptom("male");
+        Symptom d3 = new Symptom("old");
+        Symptom d4 = new Symptom("glasses");
+        Symptom d5 = new Symptom("t-shirt");
 
         Answer yes = Answer.get("yes");
         Answer no = Answer.get("no");
@@ -113,7 +112,7 @@ public class VizPanel extends JPanel {
         DescriptionAnswer da5 = new DescriptionAnswer(d5, yes);
 
 
-        Map<Description, Answer> descriptions = new HashMap<>();
+        Map<Symptom, Answer> descriptions = new HashMap<>();
 
         descriptions.put(d0, yes);
         descriptions.put(d1, no);
@@ -146,11 +145,11 @@ public class VizPanel extends JPanel {
     }
 
 
-    public void addDescriptions(Map<Description, Answer> descriptions) {
-        for (Description description : descriptions.keySet()) {
-            RectangleComponent cell = new RectangleComponent(description.toString());
+    public void addDescriptions(Map<Symptom, Answer> descriptions) {
+        for (Symptom symptom : descriptions.keySet()) {
+            RectangleComponent cell = new RectangleComponent(symptom.toString());
 //            double location = normalize(struct.answer.getScore()/4);
-            double location = descriptions.get(description).getScore() / 4;
+            double location = descriptions.get(symptom).getScore() / 4;
             addLeft(cell, location, leftComponents.size());
             leftComponents.add(cell);
             if (leftComponents.size() >= ROWS) {
@@ -160,9 +159,9 @@ public class VizPanel extends JPanel {
     }
 
 
-    public void addExtraDescriptions(List<Description> descriptions) {
-        for (Description description : descriptions) {
-            RectangleComponent cell = new RectangleComponent(description.toString());
+    public void addExtraDescriptions(List<Symptom> symptoms) {
+        for (Symptom symptom : symptoms) {
+            RectangleComponent cell = new RectangleComponent(symptom.toString());
             addLeft(cell, 0, leftComponents.size());
             leftComponents.add(cell);
             if (leftComponents.size() >= ROWS) {
@@ -172,21 +171,21 @@ public class VizPanel extends JPanel {
     }
 
 
-    public void addPersons(List<Person> persons) {
+    public void addPersons(List<Disease> diseases) {
         double min = Double.MAX_VALUE;
         double max = Double.MIN_VALUE;
-        for (Person person : persons) {
-            if (person.getScore() > max) {
-                max = person.getScore();
+        for (Disease disease : diseases) {
+            if (disease.getScore() > max) {
+                max = disease.getScore();
             }
-            if (person.getScore() < min) {
-                min = person.getScore();
+            if (disease.getScore() < min) {
+                min = disease.getScore();
             }
         }
 
-        for (Person person : persons) {
-            RectangleComponent cell = new RectangleComponent(person.toString());
-            double location = (person.getScore() - min) / (max - min);
+        for (Disease disease : diseases) {
+            RectangleComponent cell = new RectangleComponent(disease.toString());
+            double location = (disease.getScore() - min) / (max - min);
             addRight(cell, location, rightComponents.size());
             rightComponents.add(cell);
             if (rightComponents.size() >= ROWS) {
