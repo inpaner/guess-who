@@ -15,6 +15,7 @@ public final class Session {
         Disease.initCache();
         Symptom.initCache();
         Rule.initCache();
+        Disease.initParents();
     }
 
     public static void main(String[] args) {

@@ -7,33 +7,28 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created by Ivan Paner on 6/29/2016.
  */
 public class Disease implements Comparable<Disease> {
-    private static List<Disease> cache = new ArrayList<>();
+    private static Map<String, Disease> cache = new HashMap<>();
     private String id;
     private double score = 0;
+    private Rule parent;
+    private String parentCondition;
 
 
     public Disease(String id) {
         this.id = id;
     }
 
-
-    static {
-        Disease.initCache();
-    }
-
-
     public static void main(String[] args) {
+        new Session();
         List<Disease> diseases = Disease.getAll();
         for (Disease disease : diseases) {
-            System.out.println(disease.getId());
+            System.out.println(disease.parent);
         }
     }
 
@@ -43,12 +38,21 @@ public class Disease implements Comparable<Disease> {
         "FROM Disease " +
         "ORDER BY _id";
 
+    private static final String SQL_GET_PARENTS =
+        "SELECT disease_id, parent, condition " +
+        "FROM RuleTree " +
+        "WHERE disease_id NOT NULL ";
 
     /**
      * @return A copy of the cache.
      */
     public static List<Disease> getAll() {
-        return new ArrayList<>(cache);
+        return new ArrayList<>(cache.values());
+    }
+
+
+    public static Disease get(String id) {
+        return cache.get(id);
     }
 
 
@@ -65,7 +69,33 @@ public class Disease implements Comparable<Disease> {
 
             while (rs.next()) {
                 Disease disease = map(rs);
-                cache.add(disease);
+                cache.put(disease.id, disease);
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        } finally {
+            DaoUtil.close(conn, ps, rs);
+        }
+    }
+
+
+    static void initParents() {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Object[] values = {};
+        try {
+            DaoFactory factory = DaoFactory.getInstance();
+            conn = factory.getConnection();
+            ps = DaoUtil.prepareStatement(conn, SQL_GET_PARENTS, false, values);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Rule parent = Rule.get(rs.getString("parent"));
+                Disease disease = get(rs.getString("disease_id"));
+                String condition = rs.getString("condition");
+                disease.parent = parent;
+                disease.parentCondition = condition;
             }
         } catch (SQLException e) {
             System.err.println(e.getMessage());

@@ -36,7 +36,6 @@ public class Rule {
         "FROM Rule " +
         "ORDER BY _id ";
 
-
     private static final String SQL_GET_PARENTS =
          "SELECT rule_id, parent, condition " +
          "FROM RuleTree " +
@@ -45,6 +44,7 @@ public class Rule {
     private static final String SQL_GET_SYMPTOMS =
         "SELECT rule_id, symptom_id " +
         "FROM RuleContent ";
+
 
 
     static void initCache() {
@@ -110,7 +110,7 @@ public class Rule {
     }
 
 
-    private static Rule get(String id) {
+    static Rule get(String id) {
         return cache.get(id);
     }
 
