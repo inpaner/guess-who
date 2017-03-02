@@ -91,7 +91,7 @@ public class Disease implements Comparable<Disease> {
             rs = ps.executeQuery();
 
             while (rs.next()) {
-                Rule parent = Rule.get(rs.getString("parent"));
+                Rule parent = RuleManager.get(rs.getString("parent"));
                 Disease disease = get(rs.getString("disease_id"));
                 String condition = rs.getString("condition");
                 disease.parents.add(parent);
