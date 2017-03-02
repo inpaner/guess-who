@@ -11,6 +11,11 @@ public final class Session {
     private Map<Symptom, Answer> answeredDescriptionsMap = new HashMap<>(); // why didn't i do this first
     private Map<Symptom, List<Cell>> modifiedCells = new HashMap<>();
 
+    static {
+        Disease.initCache();
+        Symptom.initCache();
+        Rule.initCache();
+    }
 
     public static void main(String[] args) {
 //        new Session().testGetBestQuestion();

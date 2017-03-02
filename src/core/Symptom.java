@@ -25,9 +25,6 @@ public class Symptom {
     private String ageGroup;
     private String combinedSymptom;
 
-    static {
-        initCache();
-    }
 
     public static void main(String[] args) {
         testGet();
@@ -113,7 +110,7 @@ public class Symptom {
     }
 
 
-    private static void initCache() {
+    static void initCache() {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;

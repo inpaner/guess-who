@@ -52,7 +52,7 @@ public class Disease implements Comparable<Disease> {
     }
 
 
-    private static void initCache() {
+    static void initCache() {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
