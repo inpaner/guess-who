@@ -14,64 +14,64 @@ import java.util.*;
  */
 public class Cell {
     private static final String SQL_GET_SCORE =
-        "SELECT name, description, score " +
+        "SELECT disease_id, symptom_id, score " +
         "FROM ScoreMatrix " +
-        "WHERE name = ? AND description = ? ";
+        "WHERE disease_id = ? AND symptom_id = ? ";
 
     private static final String SQL_GET_PERSON_SCORES =
-        "SELECT name, description, score " +
+        "SELECT disease_id, symptom_id, score " +
         "FROM ScoreMatrix " +
-        "WHERE name = ? ";
+        "WHERE disease_id = ? ";
 
     private static final String SQL_GET_DESCRIPTION_SCORES =
-        "SELECT name, description, score " +
+        "SELECT disease_id, symptom_id, score " +
         "FROM ScoreMatrix " +
-        "WHERE description = ? ";
+        "WHERE symptom_id = ? ";
 
     private static final String SQL_INSERT =
-        "INSERT INTO ScoreMatrix(name, description, score) " +
+        "INSERT INTO ScoreMatrix(disease_id, symptom_id, score) " +
         "VALUES (?, ?, ?) ";
 
     private static final String SQL_UPDATE =
         "UPDATE ScoreMatrix " +
         "SET score = ? " +
-        "WHERE name = ? AND description = ? ";
+        "WHERE disease_id = ? AND symptom_id = ? ";
 
 
-    Person getPerson() {
-        return person;
+    Disease getDisease() {
+        return disease;
     }
 
 
-    void setPerson(Person person) {
-        this.person = person;
+    void setDisease(Disease disease) {
+        this.disease = disease;
     }
 
 
-    Description getDescription() {
-        return description;
+    Symptom getSymptom() {
+        return symptom;
     }
 
 
-    void setDescription(Description description) {
-        this.description = description;
+    void setSymptom(Symptom symptom) {
+        this.symptom = symptom;
     }
 
 
-    private Person person;
-    private Description description;
+    private Disease disease;
+    private Symptom symptom;
     private double score;
 
 
-    Cell(Person person, Description description, double score) {
-        this.person = person;
-        this.description = description;
+    Cell(Disease disease, Symptom symptom, double score) {
+        this.disease = disease;
+        this.symptom = symptom;
         this.score = score;
     }
 
 
-    Cell(Person person, Description description) {
-        this(person, description, 0.0);
+    Cell(Disease disease, Symptom symptom) {
+        this(disease, symptom, 0.0);
     }
 
 
@@ -83,29 +83,29 @@ public class Cell {
 
 
     private static final void testPersonScores() {
-        Person person = new Person("Ashley");
-        System.out.println(person);
-        List<Cell> cells = Cell.getCells(person);
+        Disease disease = new Disease("Ashley");
+        System.out.println(disease);
+        List<Cell> cells = Cell.getCells(disease);
         for (Cell cell : cells) {
-            System.out.println(cell.getDescription() + " " + cell.getScore());
+            System.out.println(cell.getSymptom() + " " + cell.getScore());
         }
     }
 
 
     private static final void testDescriptionScores() {
-        Description description = new Description("male");
-        System.out.println(description);
-        List<Cell> cells = Cell.getCells(description);
+        Symptom symptom = new Symptom("male");
+        System.out.println(symptom);
+        List<Cell> cells = Cell.getCells(symptom);
         for (Cell cell : cells) {
-            System.out.println(cell.getPerson() + " " + cell.getScore());
+            System.out.println(cell.getDisease() + " " + cell.getScore());
         }
     }
 
 
     private static final void testUpdateScore() {
-        Person person = new Person("Ashley");
-        Description description = new Description("male");
-        Cell cell = new Cell(person, description);
+        Disease disease = new Disease("Ashley");
+        Symptom symptom = new Symptom("male");
+        Cell cell = new Cell(disease, symptom);
         cell.setScore(-8.0);
         cell.updateCell();
     }
@@ -126,7 +126,7 @@ public class Cell {
     }
 
 
-    static Cell getCell(Person person, Description description) {
+    static Cell getCell(Disease disease, Symptom symptom) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -134,7 +134,7 @@ public class Cell {
         try {
             DaoFactory factory = DaoFactory.getInstance();
             conn = factory.getConnection();
-            Object[] values = {person.getName(), description.getDescription()};
+            Object[] values = {disease.getId(), symptom.getId()};
             ps = DaoUtil.prepareStatement(conn, SQL_GET_SCORE, false, values);
             rs = ps.executeQuery();
             while (rs.next()) {
@@ -145,7 +145,7 @@ public class Cell {
         } finally {
             DaoUtil.close(conn, ps, rs);
         }
-        return new Cell(person, description, score);
+        return new Cell(disease, symptom, score);
     }
 
 
@@ -156,13 +156,13 @@ public class Cell {
         try {
             DaoFactory factory = DaoFactory.getInstance();
             conn = factory.getConnection();
-            Object[] values = {person.getName(), description.getDescription(), score};
+            Object[] values = {disease.getId(), symptom.getId(), score};
             ps = DaoUtil.prepareStatement(conn, SQL_INSERT, false, values);
             ps.executeUpdate();
             success = true;
         } catch (SQLException e) {
             try {
-                Object[] values = {score, person.getName(), description.getDescription()};
+                Object[] values = {score, disease.getId(), symptom.getId()};
                 ps = DaoUtil.prepareStatement(conn, SQL_UPDATE, false, values);
                 ps.executeUpdate();
                 success = true;
@@ -176,31 +176,31 @@ public class Cell {
     }
 
 
-    static List<Cell> getCells(Person person) {
+    static List<Cell> getCells(Disease disease) {
         List<Cell> cells = new ArrayList<>();
-        List<Description> allDescriptions = Description.getAll();
-        for (Description description : allDescriptions) {
-            cells.add(new Cell(person, description, 0.0));
+        List<Symptom> allSymptoms = Symptom.getAll();
+        for (Symptom symptom : allSymptoms) {
+            cells.add(new Cell(disease, symptom, 0.0));
         }
-        cells = Cell.updateWithScoresFromDb(person, cells);
+        cells = Cell.updateWithScoresFromDb(disease, cells);
         return cells;
     }
 
 
-    private static List<Cell> updateWithScoresFromDb(Person person, List<Cell> cells) {
+    private static List<Cell> updateWithScoresFromDb(Disease disease, List<Cell> cells) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
             DaoFactory factory = DaoFactory.getInstance();
             conn = factory.getConnection();
-            Object[] values = {person.getName()};
+            Object[] values = {disease.getId()};
             ps = DaoUtil.prepareStatement(conn, SQL_GET_PERSON_SCORES, false, values);
             rs = ps.executeQuery();
             while (rs.next()) {
                 double score = rs.getDouble("score");
-                Description description = new Description(rs.getString("description"));
-                Cell temp = new Cell(person, description);
+                Symptom symptom = new Symptom(rs.getString("symptom_id"));
+                Cell temp = new Cell(disease, symptom);
                 Cell toChange = cells.get(cells.indexOf(temp));
                 toChange.setScore(score);
             }
@@ -213,22 +213,22 @@ public class Cell {
     }
 
 
-    static List<Cell> getCells(Description description) {
+    static List<Cell> getCells(Symptom symptom) {
         List<Cell> cells = new ArrayList<>();
-        List<Person> allPersons = Person.getAll();
-        for (Person person : allPersons) {
-            cells.add(new Cell(person, description));
+        List<Disease> allDiseases = Disease.getAll();
+        for (Disease disease : allDiseases) {
+            cells.add(new Cell(disease, symptom));
         }
-        cells = Cell.updateWithScoresFromDb(description, cells);
+        cells = Cell.updateWithScoresFromDb(symptom, cells);
         return cells;
     }
 
 
-    private static List<Cell> updateWithScoresFromDb(Description description, List<Cell> cells) {
+    private static List<Cell> updateWithScoresFromDb(Symptom symptom, List<Cell> cells) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        Object[] values = {description.getDescription()};
+        Object[] values = {symptom.getId()};
         try {
             DaoFactory factory = DaoFactory.getInstance();
             conn = factory.getConnection();
@@ -236,8 +236,8 @@ public class Cell {
             rs = ps.executeQuery();
             while (rs.next()) {
                 double score = rs.getDouble("score");
-                Person person = new Person(rs.getString("name"));
-                Cell temp = new Cell(person, description);
+                Disease disease = new Disease(rs.getString("disease_id"));
+                Cell temp = new Cell(disease, symptom);
                 Cell toChange = cells.get(cells.indexOf(temp));
                 toChange.setScore(score);
             }
@@ -251,7 +251,7 @@ public class Cell {
 
     @Override
     public String toString() {
-        return person + ", " + description + ", " + score;
+        return disease + ", " + symptom + ", " + score;
     }
 
     @Override
@@ -259,13 +259,13 @@ public class Cell {
         if (o == this) return true;
         if (!(o instanceof Cell)) return false;
         Cell cell = (Cell) o;
-        return Objects.equals(this.description, cell.description) &&
-            Objects.equals(this.person, cell.person);
+        return Objects.equals(this.symptom, cell.symptom) &&
+            Objects.equals(this.disease, cell.disease);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(person, description);
+        return Objects.hash(disease, symptom);
     }
 }

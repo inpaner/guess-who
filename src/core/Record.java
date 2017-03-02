@@ -15,15 +15,15 @@ import java.util.Map;
  */
 public class Record {
     private static final String SQL_GET =
-        "SELECT name, description, answer " +
+        "SELECT name, symptom, answer " +
             "FROM PersonDescription " +
-            "WHERE name = ? ";
-    private Person person;
-    private Map<Description, Boolean> descriptionAnswers;
+            "WHERE _id = ? ";
+    private Disease disease;
+    private Map<Symptom, Boolean> descriptionAnswers;
 
 
-    Record(Person person, Map<Description, Boolean> descriptionValues) {
-        this.person = person;
+    Record(Disease disease, Map<Symptom, Boolean> descriptionValues) {
+        this.disease = disease;
         this.descriptionAnswers = descriptionValues;
     }
 
@@ -32,41 +32,41 @@ public class Record {
     }
 
 
-    Map<Description, Boolean> getDescriptionAnswers() {
+    Map<Symptom, Boolean> getDescriptionAnswers() {
         return descriptionAnswers;
     }
 
 
     public static final void test() {
-        Record record = Record.get(new Person("Ashley"));
+        Record record = Record.get(new Disease("Ashley"));
         System.out.println(record.getAnswer("white"));
         System.out.println(record.getAnswer("black"));
     }
 
 
-    static Record get(Person person) {
+    static Record get(Disease disease) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        Object[] values = {person.getName()};
+        Object[] values = {disease.getId()};
         Record toGet = null;
         try {
             DaoFactory factory = DaoFactory.getInstance();
             conn = factory.getConnection();
             ps = DaoUtil.prepareStatement(conn, SQL_GET, false, values);
             rs = ps.executeQuery();
-            Map<Description, Boolean> descriptions = new HashMap<>();
+            Map<Symptom, Boolean> descriptions = new HashMap<>();
             while (rs.next()) {
-                String descriptionStr = rs.getString("description");
-                Description description = Description.get(descriptionStr);
+                String descriptionStr = rs.getString("symptom");
+                Symptom symptom = Symptom.get(descriptionStr);
                 String answerStr = rs.getString("answer");
                 boolean answer = false;
                 if (answerStr.equals("yes")) {
                     answer = true;
                 }
-                descriptions.put(description, answer);
+                descriptions.put(symptom, answer);
             }
-            toGet = new Record(person, descriptions);
+            toGet = new Record(disease, descriptions);
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         } finally {
@@ -75,23 +75,23 @@ public class Record {
         return toGet;
     }
 
-    boolean getAnswer(Description description) {
-        return descriptionAnswers.get(description);
+    boolean getAnswer(Symptom symptom) {
+        return descriptionAnswers.get(symptom);
     }
 
     boolean getAnswer(String descriptionStr) {
-        Description description = new Description(descriptionStr);
-        if (!descriptionAnswers.containsKey(description)) {
+        Symptom symptom = new Symptom(descriptionStr);
+        if (!descriptionAnswers.containsKey(symptom)) {
             return false;
         }
-        return getAnswer(description);
+        return getAnswer(symptom);
     }
 
     @Override
     public String toString() {
-        StringBuilder output = new StringBuilder(person.getName() + "\n");
-        for (Description description : descriptionAnswers.keySet()) {
-            String line = description.getDescription() + ": " + descriptionAnswers.get(description) + "\n";
+        StringBuilder output = new StringBuilder(disease.getId() + "\n");
+        for (Symptom symptom : descriptionAnswers.keySet()) {
+            String line = symptom.getId() + ": " + descriptionAnswers.get(symptom) + "\n";
             output.append(line);
         }
         return output.toString();

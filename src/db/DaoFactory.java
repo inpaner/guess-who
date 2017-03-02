@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
- * This class represents a DAO factory for a SQL database. You can use {@link #getInstance(String)}
+ * This class represents a DAO factory for a SQL database. You can use {@link #getInstance()}
  * to obtain a new instance for the given database name. The specific instance returned depends on
  * the properties file configuration. You can obtain DAO's for the DAO factory instance using the
  * DAO getters.
@@ -17,7 +17,8 @@ public class DaoFactory {
 
     // Constants ----------------------------------------------------------------------------------
 
-    private final String url = "jdbc:sqlite:db/guess_who.db";
+//    private final String url = "jdbc:sqlite:db/guess_who.db";
+    private final String url = "jdbc:sqlite:db/disease_flowchart.db";
 
     // Actions ------------------------------------------------------------------------------------
 

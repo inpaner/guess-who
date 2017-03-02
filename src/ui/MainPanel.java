@@ -46,7 +46,7 @@ public class MainPanel extends JPanel {
         // Top descriptions Panel
         JPanel topDescriptionPanel = new JPanel();
         topDescriptionPanel.setLayout(new MigLayout("wrap 1"));
-        JLabel topDescriptionLabel = new JLabel("Top Description");
+        JLabel topDescriptionLabel = new JLabel("Top Symptom");
         topDescription = new JLabel("This");
         yesTopDescription = new JButton("Yes");
         yesTopDescription.addActionListener(new ActionListener() {

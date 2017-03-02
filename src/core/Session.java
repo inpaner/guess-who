@@ -7,9 +7,9 @@ import java.util.*;
  */
 public final class Session {
     private final double DECAY = 0.7; // higher means more included in toplist
-    private List<Person> allPersons = new ArrayList<>();
-    private Map<Description, Answer> answeredDescriptionsMap = new HashMap<>(); // why didn't i do this first
-    private Map<Description, List<Cell>> modifiedCells = new HashMap<>();
+    private List<Disease> allDiseases = new ArrayList<>();
+    private Map<Symptom, Answer> answeredDescriptionsMap = new HashMap<>(); // why didn't i do this first
+    private Map<Symptom, List<Cell>> modifiedCells = new HashMap<>();
 
 
     public static void main(String[] args) {
@@ -26,9 +26,9 @@ public final class Session {
 
 
     private void testOneCycle() {
-        allPersons = Person.getAll();
-        allPersons.forEach(System.out::println);
-        Description bestQuestion = getBestDescriptions().get(0);
+        allDiseases = Disease.getAll();
+        allDiseases.forEach(System.out::println);
+        Symptom bestQuestion = getBestDescriptions().get(0);
         System.out.println(bestQuestion.getQuestion());
         Answer answer = Answer.get("no");
         answerDescription(bestQuestion, answer);
@@ -38,15 +38,15 @@ public final class Session {
             }
         }
         bestQuestion = getBestDescriptions().get(0);
-        allPersons.forEach(System.out::println);
+        allDiseases.forEach(System.out::println);
         System.out.println(bestQuestion.getQuestion());
     }
 
 
     private void testResponseCycles() {
         // setup
-        allPersons = Person.getAll();
-        allPersons.forEach(System.out::println);
+        allDiseases = Disease.getAll();
+        allDiseases.forEach(System.out::println);
         System.out.println("\n");
         while (true) {
             performCycle();
@@ -55,122 +55,122 @@ public final class Session {
 
 
     private void performCycle() {
-        Description bestQuestion = getBestDescriptions().get(0);
+        Symptom bestQuestion = getBestDescriptions().get(0);
         System.out.println(bestQuestion.getQuestion());
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
         Answer answer = Answer.getInputted(input);
         answerDescription(bestQuestion, answer);
         System.out.println("\n--------");
-        allPersons.forEach(System.out::println);
+        allDiseases.forEach(System.out::println);
         System.out.println("\n");
     }
 
 
     private void testGetBestDescriptions() {
-        allPersons = Person.getAll();
-        Collections.shuffle(allPersons);
+        allDiseases = Disease.getAll();
+        Collections.shuffle(allDiseases);
         int i = 0;
-        List<Person> selectedPersons = new ArrayList<>();
-        List<Person> unselectedPersons = new ArrayList<>();
-        for (Person person : allPersons) {
+        List<Disease> selectedDiseases = new ArrayList<>();
+        List<Disease> unselectedDiseases = new ArrayList<>();
+        for (Disease disease : allDiseases) {
             if (i < 1) {
-                selectedPersons.add(person);
-                System.out.println("selected: " + person);
+                selectedDiseases.add(disease);
+                System.out.println("selected: " + disease);
             } else {
-                unselectedPersons.add(person);
+                unselectedDiseases.add(disease);
             }
             i++;
         }
-        List<Description> best = getBestDescriptions(selectedPersons, unselectedPersons);
+        List<Symptom> best = getBestDescriptions(selectedDiseases, unselectedDiseases);
     }
 
 
-    public List<Description> getBestDescriptions() {
-        List<Description> descriptions = Description.getAll();
-        Collections.shuffle(descriptions); // not sure if necessary
+    public List<Symptom> getBestDescriptions() {
+        List<Symptom> symptoms = Symptom.getAll();
+        Collections.shuffle(symptoms); // not sure if necessary
         List<DescriptionMargin> dms = new ArrayList<>();
-        for (Description description : descriptions) {
+        for (Symptom symptom : symptoms) {
             List<Cell> cells;
-            if (modifiedCells.containsKey(description)) {
-                cells = modifiedCells.get(description);
+            if (modifiedCells.containsKey(symptom)) {
+                cells = modifiedCells.get(symptom);
             } else {
-                cells = Cell.getCells(description);
+                cells = Cell.getCells(symptom);
             }
             List<Cell> filteredCells = new ArrayList<>();
-            List<Person> topPersons = getTopPersons();
+            List<Disease> topDiseases = getTopPersons();
             for (Cell cell : cells) {
-                if (topPersons.contains(cell.getPerson())) {
+                if (topDiseases.contains(cell.getDisease())) {
                     filteredCells.add(cell);
                 }
             }
             double margin = getMargin(filteredCells);
-            System.out.println(description + ": " + margin);
-            dms.add(new DescriptionMargin(description, margin));
+            System.out.println(symptom + ": " + margin);
+            dms.add(new DescriptionMargin(symptom, margin));
         }
 
         Collections.sort(dms);
 
-        List<Description> sortedDescriptions = new ArrayList<>();
+        List<Symptom> sortedSymptoms = new ArrayList<>();
         for (DescriptionMargin dm : dms) {
-            sortedDescriptions.add(dm.description);
+            sortedSymptoms.add(dm.symptom);
         }
-        System.out.println(sortedDescriptions.get(0));
+        System.out.println(sortedSymptoms.get(0));
 
-        return sortedDescriptions;
+        return sortedSymptoms;
     }
 
 
-    public List<Description> getBestDescriptions(List<Person> selectedPersons, List<Person> unselectedPersons) {
-        List<Description> descriptions = Description.getAll();
-        Collections.shuffle(descriptions); // not sure if necessary
+    public List<Symptom> getBestDescriptions(List<Disease> selectedDiseases, List<Disease> unselectedDiseases) {
+        List<Symptom> symptoms = Symptom.getAll();
+        Collections.shuffle(symptoms); // not sure if necessary
         List<DescriptionMargin> dms = new ArrayList<>();
-        for (Description description : descriptions) {
+        for (Symptom symptom : symptoms) {
             List<Cell> cells;
-            if (modifiedCells.containsKey(description)) {
-                cells = modifiedCells.get(description);
+            if (modifiedCells.containsKey(symptom)) {
+                cells = modifiedCells.get(symptom);
             } else {
-                cells = Cell.getCells(description);
+                cells = Cell.getCells(symptom);
             }
             List<Cell> selectedPersonCells = new ArrayList<>();
             List<Cell> unselectedPersonCells = new ArrayList<>();
             for (Cell cell : cells) {
-                if (selectedPersons.contains(cell.getPerson())) {
+                if (selectedDiseases.contains(cell.getDisease())) {
                     selectedPersonCells.add(cell);
-                } else if (unselectedPersons.contains(cell.getPerson())) {
+                } else if (unselectedDiseases.contains(cell.getDisease())) {
                     unselectedPersonCells.add(cell);
                 }
             }
             double selectedMargin = getMargin(selectedPersonCells);
             double totalMargin = getMargin(selectedPersonCells, unselectedPersonCells);
-            dms.add(new DescriptionMargin(description, selectedMargin, totalMargin));
-//            System.out.println(description + " : " + selectedMargin + " : " + totalMargin);
+            dms.add(new DescriptionMargin(symptom, selectedMargin, totalMargin));
+//            System.out.println(symptom + " : " + selectedMargin + " : " + totalMargin);
         }
         Collections.sort(dms, Collections.reverseOrder());
         for (DescriptionMargin dm : dms) {
             System.out.println(dm);
         }
 
-        List<Description> sortedDescriptions = new ArrayList<>();
+        List<Symptom> sortedSymptoms = new ArrayList<>();
         for (DescriptionMargin dm : dms) {
-            sortedDescriptions.add(dm.description);
+            sortedSymptoms.add(dm.symptom);
         }
-        System.out.println(sortedDescriptions.get(0));
-        return sortedDescriptions;
+        System.out.println(sortedSymptoms.get(0));
+        return sortedSymptoms;
     }
 
     private class DescriptionMargin implements Comparable<DescriptionMargin> {
-        Description description;
+        Symptom symptom;
         double totalMargin;
         double selectedMargin = 0;
 
-        DescriptionMargin(Description description, double totalMargin) {
-            this.description = description;
+        DescriptionMargin(Symptom symptom, double totalMargin) {
+            this.symptom = symptom;
             this.totalMargin = totalMargin;
         }
 
-        DescriptionMargin(Description description, double selectedMargin, double totalMargin) {
-            this.description = description;
+        DescriptionMargin(Symptom symptom, double selectedMargin, double totalMargin) {
+            this.symptom = symptom;
             this.selectedMargin = selectedMargin;
             this.totalMargin = totalMargin;
         }
@@ -188,7 +188,7 @@ public final class Session {
 
         @Override
         public String toString() {
-            return description + " : " + selectedMargin + " : "+ totalMargin;
+            return symptom + " : " + selectedMargin + " : "+ totalMargin;
         }
     }
 
@@ -196,93 +196,93 @@ public final class Session {
     public void reset() {
         modifiedCells = new HashMap<>();
         answeredDescriptionsMap = new HashMap<>();
-        allPersons = Person.getAll();
+        allDiseases = Disease.getAll();
     }
 
 
-    public void answerDescription(Description description, Answer answer) {
-        if (answeredDescriptionsMap.containsKey(description)) {
-            undoAnswer(description);
+    public void answerDescription(Symptom symptom, Answer answer) {
+        if (answeredDescriptionsMap.containsKey(symptom)) {
+            undoAnswer(symptom);
         }
-        answeredDescriptionsMap.put(description, answer);
-        List<Cell> personCells = Cell.getCells(description);
+        answeredDescriptionsMap.put(symptom, answer);
+        List<Cell> personCells = Cell.getCells(symptom);
         personCells = getTopPersonCells(personCells);
         List<Cell> finishedCells = new ArrayList<>();
         for (Cell cell : personCells) {
-            Person currentPerson = allPersons.get(allPersons.indexOf(cell.getPerson()));
+            Disease currentDisease = allDiseases.get(allDiseases.indexOf(cell.getDisease()));
             if (answer.getScore() > 0) {
-                currentPerson.addScore(cell.getScore());
+                currentDisease.addScore(cell.getScore());
             } else {
-                currentPerson.addScore(-cell.getScore());
+                currentDisease.addScore(-cell.getScore());
             }
             cell.addScore(answer.getScore()); // TODO: verify if valid
             finishedCells.add(cell);
         }
-        modifiedCells.put(description, finishedCells);
+        modifiedCells.put(symptom, finishedCells);
     }
 
 
-    private void undoAnswer(Description description) {
+    private void undoAnswer(Symptom symptom) {
         // Undo the added scores to the persons
-        Answer oldAnswer = answeredDescriptionsMap.get(description);
-        List<Cell> oldFinishedCells = modifiedCells.get(description);
+        Answer oldAnswer = answeredDescriptionsMap.get(symptom);
+        List<Cell> oldFinishedCells = modifiedCells.get(symptom);
         for (Cell oldCell : oldFinishedCells) {
-            Person currentPerson = allPersons.get(allPersons.indexOf(oldCell.getPerson()));
+            Disease currentDisease = allDiseases.get(allDiseases.indexOf(oldCell.getDisease()));
             oldCell.addScore(-oldAnswer.getScore());
             if (oldAnswer.getScore() > 0) {
-                currentPerson.addScore(-oldCell.getScore());
+                currentDisease.addScore(-oldCell.getScore());
             } else {
-                currentPerson.addScore(oldCell.getScore());
+                currentDisease.addScore(oldCell.getScore());
             }
         }
     }
 
 
-    public void removeAnswer(Description description) {
-        if (!answeredDescriptionsMap.containsKey(description)) {
+    public void removeAnswer(Symptom symptom) {
+        if (!answeredDescriptionsMap.containsKey(symptom)) {
             return;
         }
-        undoAnswer(description);
-        modifiedCells.remove(description);
-        answeredDescriptionsMap.remove(description);
+        undoAnswer(symptom);
+        modifiedCells.remove(symptom);
+        answeredDescriptionsMap.remove(symptom);
     }
 
 
-    public List<Person> getTopPersons() {
+    public List<Disease> getTopPersons() {
         // filter via decay
-        List<Person> filteredPersons = new ArrayList<>();
-        Collections.sort(allPersons, Collections.reverseOrder());
+        List<Disease> filteredDiseases = new ArrayList<>();
+        Collections.sort(allDiseases, Collections.reverseOrder());
         int totalToFilter = totalToFilter();
         for (int i = 0; i < totalToFilter; i++) {
-            filteredPersons.add(allPersons.get(i));
+            filteredDiseases.add(allDiseases.get(i));
         }
-        return  filteredPersons;
+        return filteredDiseases;
     }
 
 
     private int totalToFilter() {
-        int total = (int) (Math.pow(DECAY, answeredDescriptionsMap.size()) * allPersons.size());
+        int total = (int) (Math.pow(DECAY, answeredDescriptionsMap.size()) * allDiseases.size());
         if (total < 3) {
             total = 3;
         }
         return total;
     }
 
-    public List<Person> getAllPersons() {
-        Collections.sort(allPersons, Collections.reverseOrder());
-        return  allPersons;
+    public List<Disease> getAllDiseases() {
+        Collections.sort(allDiseases, Collections.reverseOrder());
+        return allDiseases;
     }
 
 
-    public Map<Description, Answer> getAnsweredDescriptions() {
+    public Map<Symptom, Answer> getAnsweredDescriptions() {
         return  answeredDescriptionsMap;
     }
 
     private List<Cell> getTopPersonCells(List<Cell> personCells) {
         List<Cell> filteredCells = new ArrayList<>();
-//        List<Person> topPersons = getTopPersons();
+//        List<Disease> topPersons = getTopPersons();
         for (Cell cell : personCells) {
-            if (allPersons.contains(cell.getPerson())) {
+            if (allDiseases.contains(cell.getDisease())) {
                 filteredCells.add(cell);
             }
         }
@@ -320,11 +320,11 @@ public final class Session {
     }
 
     public static class DescriptionAnswer {
-        public Description description;
+        public Symptom symptom;
         public Answer answer;
 
-        public DescriptionAnswer(Description description, Answer answer) {
-            this.description = description;
+        public DescriptionAnswer(Symptom symptom, Answer answer) {
+            this.symptom = symptom;
             this.answer = answer;
         }
     }
