@@ -102,8 +102,10 @@ public class Rule {
     Rule.Status addSymptom(Symptom symptom, Answer answer) {
         if (!attachedSymptoms.contains(symptom)) {
             return status;
+        } else if (answeredSymptoms.containsKey(symptom)) {
+            removeSymptom(symptom);
         }
-
+        answeredSymptoms.put(symptom, answer);
         if (answer.getScore() > 0) {
             satisfiedConditions++;
         }
@@ -114,10 +116,31 @@ public class Rule {
         } else {
             status = Status.ACTIVE;
         }
-        answeredSymptoms.put(symptom, answer);
+
         return status;
     }
 
+
+    Rule.Status removeSymptom(Symptom symptom) {
+        if (!attachedSymptoms.contains(symptom) || !answeredSymptoms.containsKey(symptom)) {
+            return status;
+        }
+        Answer answer = answeredSymptoms.get(symptom);
+        answeredSymptoms.remove(symptom);
+
+        if (answer.getScore() > 0) {
+            satisfiedConditions--;
+        }
+        if (satisfiedConditions >= value) {
+            status = Status.PASS;
+        } else if (answeredSymptoms.isEmpty()) {
+            status = Status.INACTIVE;
+        } else {
+            status = Status.ACTIVE;
+        }
+
+        return status;
+    }
 
     @Override
     public boolean equals(Object o) {

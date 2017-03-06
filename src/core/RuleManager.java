@@ -113,18 +113,21 @@ public class RuleManager {
     }
 
 
-    public static void main(String[] args) {
-//        new RuleManager().testSymptomCache();
-        new RuleManager().testRuleLogic();
-    }
-
-
     public static void answerSymptom(Symptom recentSymptom, Answer recentAnswer, Map<Symptom, Answer> answeredDescriptions) {
         List<Rule> rules = symptomCache.get(recentSymptom);
         for (Rule rule : rules) {
 
         }
     }
+
+
+
+    public static void main(String[] args) {
+//        new RuleManager().testSymptomCache();
+        new RuleManager().testRuleLogic();
+    }
+
+
 
     private void testSymptomCache() {
         new Session();
@@ -141,15 +144,36 @@ public class RuleManager {
         Answer yes = Answer.getYes();
         Answer no = Answer.getNo();
         Symptom symptom = Symptom.get("eye_sudden_vision_change");
+
         Rule rule = cache.get("32");
-        System.out.println(rule.getStatus());
+        System.out.println("Inactive: " + rule.getStatus());
+
+        // test active status
         rule.addSymptom(symptom, no);
-        rule.addSymptom(symptom, no);
-        rule.addSymptom(symptom, no);
+        System.out.println("Active: " + rule.getStatus());
+
+        // test remove
+        rule.removeSymptom(symptom);
+        System.out.println("Inactive: " + rule.getStatus());
+
+        // test change answer and pass
         rule.addSymptom(symptom, no);
         rule.addSymptom(symptom, yes);
+        System.out.println("Pass: " + rule.getStatus());
+
+        // test fail
+        Symptom s1 = Symptom.get("eye_red:near_colored_part");
+        Symptom s2 = Symptom.get("eye_foreign_body:unwashable");
+        Symptom s3 = Symptom.get("eye_swollen");
+        Symptom s4 = Symptom.get("eye_pain");
+        rule.removeSymptom(symptom);
+        System.out.println("Inactive: " + rule.getStatus());
         rule.addSymptom(symptom, no);
-        rule.addSymptom(symptom, no);
-        System.out.println(rule.getStatus());
+        rule.addSymptom(s1, no);
+        rule.addSymptom(s2, no);
+        rule.addSymptom(s3, no);
+        rule.addSymptom(s4, no);
+        System.out.println("Fail: " + rule.getStatus());
+
     }
 }
