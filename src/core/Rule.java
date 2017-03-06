@@ -29,6 +29,10 @@ public class Rule {
     }
 
 
+    public enum Ancestry {
+        YES, NO, NOT_ANCESTOR
+    }
+
     private Rule(){}
 
 
@@ -98,19 +102,23 @@ public class Rule {
     }
 
 
-    public boolean isAncestor(Rule rule) {
-        if (this.equals(rule)) {
-            return true;
-        } else if (parents.isEmpty()) {
-            return false;
-        } else {
-            for (Rule parent : parents.keySet()) {
-                if (parent.isAncestor(rule)) {
-                    return true;
+    public Rule.Ancestry isAncestor(Rule rule) {
+        for (Rule parent : parents.keySet()) {
+            if (parent.equals(rule)) {
+                String ancestry = parents.get(rule);
+                if (ancestry.startsWith("y")) {
+                    return Ancestry.YES;
+                } else {
+                    return Ancestry.NO;
+                }
+            } else {
+                Rule.Ancestry cumulativeAncestry = parent.isAncestor(rule);
+                if (cumulativeAncestry != Ancestry.NOT_ANCESTOR) {
+                    return cumulativeAncestry;
                 }
             }
         }
-        return false;
+        return Ancestry.NOT_ANCESTOR;
     }
 
 

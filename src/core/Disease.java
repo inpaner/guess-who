@@ -25,11 +25,21 @@ public class Disease implements Comparable<Disease> {
     }
 
     public static void main(String[] args) {
+        new Disease("test").testAncestry();
+    }
+
+
+    private void testAncestry() {
         new Session();
-        List<Disease> diseases = Disease.getAll();
-        for (Disease disease : diseases) {
-            System.out.println(disease.parents);
-        }
+        Disease d1 = Disease.get("critical_danger:eye_problem");
+        Rule r = RuleManager.get("32");
+        System.out.println("Yes: " + d1.ancestry(r));
+
+        Disease d2 = Disease.get("cataract");
+        System.out.println("No: " + d2.ancestry(r));
+
+        Rule r2 = RuleManager.get("33a");
+        System.out.println("Not ancestor: " + d1.ancestry(r2));
     }
 
 
@@ -132,20 +142,20 @@ public class Disease implements Comparable<Disease> {
     }
 
 
-    public boolean isRelevant(Rule rule) {
-        if (parents.equals(rule)) {
-            return true;
-        } else if (parents.isEmpty()) {
-            return false;
-        } else {
-            for (Rule parent : parents) {
-                if (parent.isAncestor(rule)) {
-                    return true;
+    public Rule.Ancestry ancestry(Rule rule) {
+        for (Rule parent : parents) {
+            if (parent.equals(rule)) {
+                return Rule.Ancestry.YES;
+            } else {
+                Rule.Ancestry cumulativeAncestry = parent.isAncestor(rule);
+                if (cumulativeAncestry != Rule.Ancestry.NOT_ANCESTOR) {
+                    return cumulativeAncestry;
                 }
             }
         }
-        return false;
+        return Rule.Ancestry.NOT_ANCESTOR;
     }
+
 
     @Override
     public boolean equals(Object o) {

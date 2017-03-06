@@ -231,22 +231,29 @@ public final class Session {
 
     private void handleSymptomsWithRules(Disease currentDisease, Answer answer, Cell cell, List<Rule> returnedRules) {
         Rule relevantRule = null;
-
+        Rule.Ancestry ancestry = null;
         for (Rule rule : returnedRules) {
-            if (currentDisease.isRelevant(rule)) {
+             ancestry = currentDisease.ancestry(rule);
+            if (!ancestry.equals(Rule.Ancestry.NOT_ANCESTOR)) { // if rule is ancestor
                 relevantRule = rule;
                 break;
             }
         }
-        if (appliedRules.get(currentDisease).contains(relevantRule)) {
+        List<Rule> appliedRuleForDisease = appliedRules.get(currentDisease);
+        if (appliedRuleForDisease == null) {
+            appliedRuleForDisease = new ArrayList<>();
+            appliedRules.put(currentDisease, appliedRuleForDisease);
+        }
+        if (relevantRule == null || appliedRuleForDisease.contains(relevantRule)) {
             return;
         }
 
-        if (relevantRule.isPass() && answer.getScore() > 0) {
+
+        if (relevantRule.isPass() && ancestry.equals(Rule.Ancestry.YES) && answer.getScore() > 0) {
             currentDisease.addScore(cell.getScore());
             cell.addScore(answer.getScore()); // TODO: verify if valid
             applyRule(currentDisease, relevantRule);
-        } else if (relevantRule.isFail() && answer.getScore() < 0){
+        } else if (relevantRule.isFail() && ancestry.equals(Rule.Ancestry.NO) && answer.getScore() < 0){
             currentDisease.addScore(-cell.getScore());
             cell.addScore(answer.getScore()); // TODO: verify if valid
             applyRule(currentDisease, relevantRule);

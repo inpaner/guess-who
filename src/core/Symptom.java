@@ -12,7 +12,7 @@ import java.util.*;
 /**
  * Created by Ivan Paner on 7/4/2016.
  */
-public class Symptom {
+public class Symptom implements Comparable<Symptom> {
     private static Map<String, Symptom> cache = new HashMap<>();
     private String id;
     private String question;
@@ -130,7 +130,9 @@ public class Symptom {
      * @return A copy of the cache.
      */
     public static List<Symptom> getAll() {
-        return new ArrayList<>(cache.values());
+        List<Symptom> results = new ArrayList<Symptom>(cache.values());
+        Collections.sort(results);
+        return results;
     }
 
 
@@ -174,5 +176,11 @@ public class Symptom {
     @Override
     public String toString() {
         return id;
+    }
+
+
+    @Override
+    public int compareTo(Symptom other) {
+        return id.compareTo(other.id);
     }
 }
