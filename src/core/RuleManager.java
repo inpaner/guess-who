@@ -19,6 +19,7 @@ import static com.sun.corba.se.impl.util.RepositoryId.cache;
  */
 public class RuleManager {
     private static Map<String, Rule> cache = new HashMap<>();
+    private static Map<Symptom, List<Rule>> symptomCache = new HashMap<>();
 
     private static final String SQL_GET_ALL =
             "SELECT _id, type, value " +
@@ -35,13 +36,11 @@ public class RuleManager {
                     "FROM RuleContent ";
 
 
-
     static void initCache() {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         Object[] values = {};
-
 
         try {
             // init rules
@@ -71,12 +70,23 @@ public class RuleManager {
                 Rule rule = get(rs.getString("rule_id"));
                 Symptom symptom = Symptom.get(rs.getString("symptom_id"));
                 rule.addSymptom(symptom);
+                addToSymptomCache(symptom, rule);
             }
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         } finally {
             DaoUtil.close(conn, ps, rs);
         }
+    }
+
+
+    private static void addToSymptomCache(Symptom symptom, Rule rule) {
+        List<Rule> rules = symptomCache.get(symptom);
+        if (rules == null) {
+            rules = new ArrayList<>();
+            symptomCache.put(symptom, rules);
+        }
+        rules.add(rule);
     }
 
     static Rule get(String id) {
@@ -102,4 +112,18 @@ public class RuleManager {
         return rule;
     }
 
+
+    public static void main(String[] args) {
+        new RuleManager().testSymptomCache();
+    }
+
+
+    private void testSymptomCache() {
+        new Session();
+        for (Symptom symptom : symptomCache.keySet()) {
+            System.out.println(symptom);
+            System.out.println(symptomCache.get(symptom));
+            System.out.println();
+        }
+    }
 }
