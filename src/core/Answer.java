@@ -72,6 +72,16 @@ public class Answer {
     }
 
 
+    public static Answer getYes() {
+        return get("yes");
+    }
+
+
+    public static Answer getNo() {
+        return get("no");
+    }
+
+
     public static Answer getInputted(String answerStr) {
         if (answerStr.toLowerCase().equals("y") || answerStr.toLowerCase().equals("yes")) {
             return Answer.get("yes");

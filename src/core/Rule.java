@@ -7,10 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Ivan on 3/2/2017.
@@ -20,21 +17,56 @@ public class Rule {
     private String id;
     private String type;
     private int value;
-    private Status status;
-    private List<Symptom> symptoms = new ArrayList<>();
+    private int satisfiedConditions = 0;
+    private int totalSymptoms;
+    private Status status = Status.INACTIVE;
+    private List<Symptom> attachedSymptoms = new ArrayList<>();
+    private Map<Symptom, Answer> answeredSymptoms = new HashMap<>();
     private Map<Rule, String> parents = new HashMap<>();
 
 
-    enum Status {
+    public enum Status {
         PASS, FAIL, ACTIVE, INACTIVE
     }
 
+
     private Rule(){}
+
 
     Rule(String id, String type, int value) {
         this.id = id;
         this.type = type;
         this.value = value;
+    }
+
+
+    boolean isPass() {
+        return status.equals(Status.PASS);
+    }
+
+
+    boolean isFail() {
+        return status.equals(Status.FAIL);
+    }
+
+
+    boolean isActive() {
+        return status.equals(Status.ACTIVE);
+    }
+
+
+    boolean isInactive() {
+        return status.equals(Status.INACTIVE);
+    }
+
+
+    int getValue() {
+        return value;
+    }
+
+
+    Rule.Status getStatus() {
+        return status;
     }
 
 
@@ -62,8 +94,37 @@ public class Rule {
     }
 
 
-    void addSymptom(Symptom symptom) {
-        symptoms.add(symptom);
+    void attachSymptom(Symptom symptom) {
+        attachedSymptoms.add(symptom);
+    }
+
+
+    Rule.Status addSymptom(Symptom symptom, Answer answer) {
+        if (!attachedSymptoms.contains(symptom)) {
+            return status;
+        }
+
+        if (answer.getScore() > 0) {
+            satisfiedConditions++;
+        }
+        if (satisfiedConditions >= value) {
+            status = Status.PASS;
+        } else if (answeredSymptoms.size() == attachedSymptoms.size()) {
+            status = Status.FAIL;
+        } else {
+            status = Status.ACTIVE;
+        }
+        answeredSymptoms.put(symptom, answer);
+        return status;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof Rule)) return false;
+        Rule rule = (Rule) o;
+        return Objects.equals(this.id, rule.id);
     }
 
 

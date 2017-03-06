@@ -69,7 +69,7 @@ public class RuleManager {
             while (rs.next()) {
                 Rule rule = get(rs.getString("rule_id"));
                 Symptom symptom = Symptom.get(rs.getString("symptom_id"));
-                rule.addSymptom(symptom);
+                rule.attachSymptom(symptom);
                 addToSymptomCache(symptom, rule);
             }
         } catch (SQLException e) {
@@ -114,9 +114,17 @@ public class RuleManager {
 
 
     public static void main(String[] args) {
-        new RuleManager().testSymptomCache();
+//        new RuleManager().testSymptomCache();
+        new RuleManager().testRuleLogic();
     }
 
+
+    public static void answerSymptom(Symptom recentSymptom, Answer recentAnswer, Map<Symptom, Answer> answeredDescriptions) {
+        List<Rule> rules = symptomCache.get(recentSymptom);
+        for (Rule rule : rules) {
+
+        }
+    }
 
     private void testSymptomCache() {
         new Session();
@@ -125,5 +133,23 @@ public class RuleManager {
             System.out.println(symptomCache.get(symptom));
             System.out.println();
         }
+    }
+
+
+    private void testRuleLogic() {
+        new Session();
+        Answer yes = Answer.getYes();
+        Answer no = Answer.getNo();
+        Symptom symptom = Symptom.get("eye_sudden_vision_change");
+        Rule rule = cache.get("32");
+        System.out.println(rule.getStatus());
+        rule.addSymptom(symptom, no);
+        rule.addSymptom(symptom, no);
+        rule.addSymptom(symptom, no);
+        rule.addSymptom(symptom, no);
+        rule.addSymptom(symptom, yes);
+        rule.addSymptom(symptom, no);
+        rule.addSymptom(symptom, no);
+        System.out.println(rule.getStatus());
     }
 }

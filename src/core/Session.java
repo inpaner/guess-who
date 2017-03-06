@@ -8,7 +8,7 @@ import java.util.*;
 public final class Session {
     private final double DECAY = 0.7; // higher means more included in toplist
     private List<Disease> allDiseases = new ArrayList<>();
-    private Map<Symptom, Answer> answeredDescriptionsMap = new HashMap<>(); // why didn't i do this first
+    private Map<Symptom, Answer> answeredDescriptions = new HashMap<>(); // why didn't i do this first
     private Map<Symptom, List<Cell>> modifiedCells = new HashMap<>();
 
     static {
@@ -201,16 +201,16 @@ public final class Session {
 
     public void reset() {
         modifiedCells = new HashMap<>();
-        answeredDescriptionsMap = new HashMap<>();
+        answeredDescriptions = new HashMap<>();
         allDiseases = Disease.getAll();
     }
 
 
     public void answerDescription(Symptom symptom, Answer answer) {
-        if (answeredDescriptionsMap.containsKey(symptom)) {
+        if (answeredDescriptions.containsKey(symptom)) {
             undoAnswer(symptom);
         }
-        answeredDescriptionsMap.put(symptom, answer);
+        answeredDescriptions.put(symptom, answer);
         List<Cell> personCells = Cell.getCells(symptom);
         personCells = getTopPersonCells(personCells);
         List<Cell> finishedCells = new ArrayList<>();
@@ -230,7 +230,7 @@ public final class Session {
 
     private void undoAnswer(Symptom symptom) {
         // Undo the added scores to the persons
-        Answer oldAnswer = answeredDescriptionsMap.get(symptom);
+        Answer oldAnswer = answeredDescriptions.get(symptom);
         List<Cell> oldFinishedCells = modifiedCells.get(symptom);
         for (Cell oldCell : oldFinishedCells) {
             Disease currentDisease = allDiseases.get(allDiseases.indexOf(oldCell.getDisease()));
@@ -245,12 +245,12 @@ public final class Session {
 
 
     public void removeAnswer(Symptom symptom) {
-        if (!answeredDescriptionsMap.containsKey(symptom)) {
+        if (!answeredDescriptions.containsKey(symptom)) {
             return;
         }
         undoAnswer(symptom);
         modifiedCells.remove(symptom);
-        answeredDescriptionsMap.remove(symptom);
+        answeredDescriptions.remove(symptom);
     }
 
 
@@ -267,7 +267,7 @@ public final class Session {
 
 
     private int totalToFilter() {
-        int total = (int) (Math.pow(DECAY, answeredDescriptionsMap.size()) * allDiseases.size());
+        int total = (int) (Math.pow(DECAY, answeredDescriptions.size()) * allDiseases.size());
         if (total < 3) {
             total = 3;
         }
@@ -281,7 +281,7 @@ public final class Session {
 
 
     public Map<Symptom, Answer> getAnsweredDescriptions() {
-        return  answeredDescriptionsMap;
+        return answeredDescriptions;
     }
 
     private List<Cell> getTopPersonCells(List<Cell> personCells) {
