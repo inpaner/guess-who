@@ -24,7 +24,6 @@ public class Rule {
     private Map<Symptom, Answer> answeredSymptoms = new HashMap<>();
     private Map<Rule, String> parents = new HashMap<>();
 
-
     public enum Status {
         PASS, FAIL, ACTIVE, INACTIVE
     }
@@ -99,7 +98,23 @@ public class Rule {
     }
 
 
-    Rule.Status addSymptom(Symptom symptom, Answer answer) {
+    public boolean isAncestor(Rule rule) {
+        if (this.equals(rule)) {
+            return true;
+        } else if (parents.isEmpty()) {
+            return false;
+        } else {
+            for (Rule parent : parents.keySet()) {
+                if (parent.isAncestor(rule)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+    Rule.Status answerSymptom(Symptom symptom, Answer answer) {
         if (!attachedSymptoms.contains(symptom)) {
             return status;
         } else if (answeredSymptoms.containsKey(symptom)) {

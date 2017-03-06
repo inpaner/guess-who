@@ -12,8 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.sun.corba.se.impl.util.RepositoryId.cache;
-
 /**
  * Created by Ivan on 3/2/2017.
  */
@@ -113,18 +111,21 @@ public class RuleManager {
     }
 
 
-    public static void answerSymptom(Symptom recentSymptom, Answer recentAnswer, Map<Symptom, Answer> answeredDescriptions) {
+    public static List<Rule> answerSymptom(Symptom recentSymptom, Answer recentAnswer) {
         List<Rule> rules = symptomCache.get(recentSymptom);
-        for (Rule rule : rules) {
-
+        if (rules == null || rules.isEmpty()) {
+            return rules;
         }
+        for (Rule rule : rules) {
+            rule.answerSymptom(recentSymptom, recentAnswer);
+        }
+        return rules;
     }
 
 
-
     public static void main(String[] args) {
-//        new RuleManager().testSymptomCache();
-        new RuleManager().testRuleLogic();
+        new RuleManager().testSymptomCache();
+//        new RuleManager().testRuleLogic();
     }
 
 
@@ -149,7 +150,7 @@ public class RuleManager {
         System.out.println("Inactive: " + rule.getStatus());
 
         // test active status
-        rule.addSymptom(symptom, no);
+        rule.answerSymptom(symptom, no);
         System.out.println("Active: " + rule.getStatus());
 
         // test remove
@@ -157,8 +158,8 @@ public class RuleManager {
         System.out.println("Inactive: " + rule.getStatus());
 
         // test change answer and pass
-        rule.addSymptom(symptom, no);
-        rule.addSymptom(symptom, yes);
+        rule.answerSymptom(symptom, no);
+        rule.answerSymptom(symptom, yes);
         System.out.println("Pass: " + rule.getStatus());
 
         // test fail
@@ -168,12 +169,11 @@ public class RuleManager {
         Symptom s4 = Symptom.get("eye_pain");
         rule.removeSymptom(symptom);
         System.out.println("Inactive: " + rule.getStatus());
-        rule.addSymptom(symptom, no);
-        rule.addSymptom(s1, no);
-        rule.addSymptom(s2, no);
-        rule.addSymptom(s3, no);
-        rule.addSymptom(s4, no);
+        rule.answerSymptom(symptom, no);
+        rule.answerSymptom(s1, no);
+        rule.answerSymptom(s2, no);
+        rule.answerSymptom(s3, no);
+        rule.answerSymptom(s4, no);
         System.out.println("Fail: " + rule.getStatus());
-
     }
 }

@@ -7,15 +7,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created by Ivan Paner on 7/4/2016.
  */
 public class Symptom {
-    private static List<Symptom> cache = new ArrayList<>();
+    private static Map<String, Symptom> cache = new HashMap<>();
     private String id;
     private String question;
     private Symptom superclass;
@@ -50,7 +48,7 @@ public class Symptom {
 
 
     private static void testGet() {
-        Symptom male = Symptom.get("male");
+        Symptom male = Symptom.get("eye_swollen");
         System.out.println(male.id);
         Symptom isNull = Symptom.get("cow");
         System.out.println(isNull == null);
@@ -59,8 +57,8 @@ public class Symptom {
 
     private static final String SQL_GET_ALL =
             "SELECT _id, question, superclass, grouping, chief_complaint, age_group, combined_symptom " +
-                    "FROM Symptom " +
-                    "ORDER BY _id";
+            "FROM Symptom " +
+            "ORDER BY _id";
 
 
 
@@ -101,12 +99,7 @@ public class Symptom {
 
 
     static Symptom get(String description) {
-        Symptom container = new Symptom(description);
-        int index = cache.indexOf(container);
-        if (index == -1) {
-            return null;
-        }
-        return cache.get(index);
+        return cache.get(description);
     }
 
 
@@ -123,7 +116,7 @@ public class Symptom {
 
             while (rs.next()) {
                 Symptom symptom = map(rs);
-                cache.add(symptom);
+                cache.put(symptom.id, symptom);
             }
         } catch (SQLException e) {
             System.err.println(e.getMessage());
@@ -137,7 +130,7 @@ public class Symptom {
      * @return A copy of the cache.
      */
     public static List<Symptom> getAll() {
-        return new ArrayList<>(cache);
+        return new ArrayList<>(cache.values());
     }
 
 

@@ -8,8 +8,9 @@ import java.util.*;
 public final class Session {
     private final double DECAY = 0.7; // higher means more included in toplist
     private List<Disease> allDiseases = new ArrayList<>();
-    private Map<Symptom, Answer> answeredDescriptions = new HashMap<>(); // why didn't i do this first
+    private Map<Symptom, Answer> answeredSymptoms = new HashMap<>(); // why didn't i do this first
     private Map<Symptom, List<Cell>> modifiedCells = new HashMap<>();
+    private Map<Disease, List<Rule>> appliedRules = new HashMap<>();
 
     static {
         Disease.initCache();
@@ -37,7 +38,7 @@ public final class Session {
         Symptom bestQuestion = getBestDescriptions().get(0);
         System.out.println(bestQuestion.getQuestion());
         Answer answer = Answer.get("no");
-        answerDescription(bestQuestion, answer);
+        answerSymptom(bestQuestion, answer);
         for (List<Cell> filteredCells : modifiedCells.values()) {
             for (Cell cell : filteredCells) {
                 System.out.println(cell);
@@ -66,7 +67,7 @@ public final class Session {
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
         Answer answer = Answer.getInputted(input);
-        answerDescription(bestQuestion, answer);
+        answerSymptom(bestQuestion, answer);
         System.out.println("\n--------");
         allDiseases.forEach(System.out::println);
         System.out.println("\n");
@@ -104,7 +105,7 @@ public final class Session {
                 cells = Cell.getCells(symptom);
             }
             List<Cell> filteredCells = new ArrayList<>();
-            List<Disease> topDiseases = getTopPersons();
+            List<Disease> topDiseases = getTopDiseases();
             for (Cell cell : cells) {
                 if (topDiseases.contains(cell.getDisease())) {
                     filteredCells.add(cell);
@@ -201,36 +202,81 @@ public final class Session {
 
     public void reset() {
         modifiedCells = new HashMap<>();
-        answeredDescriptions = new HashMap<>();
+        answeredSymptoms = new HashMap<>();
         allDiseases = Disease.getAll();
     }
 
 
-    public void answerDescription(Symptom symptom, Answer answer) {
-        if (answeredDescriptions.containsKey(symptom)) {
+    public void answerSymptom(Symptom symptom, Answer answer) {
+        if (answeredSymptoms.containsKey(symptom)) {
             undoAnswer(symptom);
         }
-        answeredDescriptions.put(symptom, answer);
-        List<Cell> personCells = Cell.getCells(symptom);
-        personCells = getTopPersonCells(personCells);
+        answeredSymptoms.put(symptom, answer);
+        List<Cell> diseaseCells = Cell.getCells(symptom);
+        diseaseCells = getTopDiseaseCells(diseaseCells);
         List<Cell> finishedCells = new ArrayList<>();
-        for (Cell cell : personCells) {
+        List<Rule> returnedRules = RuleManager.answerSymptom(symptom, answer);
+        for (Cell cell : diseaseCells) {
             Disease currentDisease = allDiseases.get(allDiseases.indexOf(cell.getDisease()));
-            if (answer.getScore() > 0) {
-                currentDisease.addScore(cell.getScore());
+            if (returnedRules == null || returnedRules.isEmpty()) {
+                handleSymptomsWithNoRules(currentDisease, answer, cell);
             } else {
-                currentDisease.addScore(-cell.getScore());
+                handleSymptomsWithRules(currentDisease, answer, cell, returnedRules);
             }
-            cell.addScore(answer.getScore()); // TODO: verify if valid
             finishedCells.add(cell);
         }
         modifiedCells.put(symptom, finishedCells);
     }
 
 
+    private void handleSymptomsWithRules(Disease currentDisease, Answer answer, Cell cell, List<Rule> returnedRules) {
+        Rule relevantRule = null;
+
+        for (Rule rule : returnedRules) {
+            if (currentDisease.isRelevant(rule)) {
+                relevantRule = rule;
+                break;
+            }
+        }
+        if (appliedRules.get(currentDisease).contains(relevantRule)) {
+            return;
+        }
+
+        if (relevantRule.isPass() && answer.getScore() > 0) {
+            currentDisease.addScore(cell.getScore());
+            cell.addScore(answer.getScore()); // TODO: verify if valid
+            applyRule(currentDisease, relevantRule);
+        } else if (relevantRule.isFail() && answer.getScore() < 0){
+            currentDisease.addScore(-cell.getScore());
+            cell.addScore(answer.getScore()); // TODO: verify if valid
+            applyRule(currentDisease, relevantRule);
+        }
+    }
+
+
+    private void handleSymptomsWithNoRules(Disease currentDisease, Answer answer, Cell cell) {
+        if (answer.getScore() > 0) {
+            currentDisease.addScore(cell.getScore());
+        } else if (answer.getScore() < 0){
+            currentDisease.addScore(-cell.getScore());
+        }
+        cell.addScore(answer.getScore()); // TODO: verify if valid
+    }
+
+
+    private void applyRule(Disease disease, Rule rule) {
+        List<Rule> rules = appliedRules.get(disease);
+        if (rules == null) {
+            rules = new ArrayList<>();
+            appliedRules.put(disease, rules);
+        }
+        rules.add(rule);
+    }
+
+
     private void undoAnswer(Symptom symptom) {
         // Undo the added scores to the persons
-        Answer oldAnswer = answeredDescriptions.get(symptom);
+        Answer oldAnswer = answeredSymptoms.get(symptom);
         List<Cell> oldFinishedCells = modifiedCells.get(symptom);
         for (Cell oldCell : oldFinishedCells) {
             Disease currentDisease = allDiseases.get(allDiseases.indexOf(oldCell.getDisease()));
@@ -245,16 +291,16 @@ public final class Session {
 
 
     public void removeAnswer(Symptom symptom) {
-        if (!answeredDescriptions.containsKey(symptom)) {
+        if (!answeredSymptoms.containsKey(symptom)) {
             return;
         }
         undoAnswer(symptom);
         modifiedCells.remove(symptom);
-        answeredDescriptions.remove(symptom);
+        answeredSymptoms.remove(symptom);
     }
 
 
-    public List<Disease> getTopPersons() {
+    public List<Disease> getTopDiseases() {
         // filter via decay
         List<Disease> filteredDiseases = new ArrayList<>();
         Collections.sort(allDiseases, Collections.reverseOrder());
@@ -267,7 +313,7 @@ public final class Session {
 
 
     private int totalToFilter() {
-        int total = (int) (Math.pow(DECAY, answeredDescriptions.size()) * allDiseases.size());
+        int total = (int) (Math.pow(DECAY, answeredSymptoms.size()) * allDiseases.size());
         if (total < 3) {
             total = 3;
         }
@@ -280,15 +326,16 @@ public final class Session {
     }
 
 
-    public Map<Symptom, Answer> getAnsweredDescriptions() {
-        return answeredDescriptions;
+    public Map<Symptom, Answer> getAnsweredSymptoms() {
+        return answeredSymptoms;
     }
 
-    private List<Cell> getTopPersonCells(List<Cell> personCells) {
+    private List<Cell> getTopDiseaseCells(List<Cell> diseaseCells) {
         List<Cell> filteredCells = new ArrayList<>();
-//        List<Disease> topPersons = getTopPersons();
-        for (Cell cell : personCells) {
-            if (allDiseases.contains(cell.getDisease())) {
+        List<Disease> topPersons = getTopDiseases();
+        for (Cell cell : diseaseCells) {
+//            if (allDiseases.contains(cell.getDisease())) {
+            if (topPersons.contains(cell.getDisease())) {
                 filteredCells.add(cell);
             }
         }

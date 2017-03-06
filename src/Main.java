@@ -61,7 +61,7 @@ public class Main {
         panel.setTopDescription(bestSymptom.getQuestion());
 
         vizPanel.clearLeft();
-        vizPanel.addDescriptions(session.getAnsweredDescriptions());
+        vizPanel.addDescriptions(session.getAnsweredSymptoms());
         vizPanel.addExtraDescriptions(bestSymptoms);
 
         vizPanel.clearRight();
@@ -73,26 +73,26 @@ public class Main {
 
         @Override
         public void clickedTopYes() {
-            session.answerDescription(bestSymptom, Answer.get("yes"));
+            session.answerSymptom(bestSymptom, Answer.get("yes"));
             updateUi();
         }
 
 
         @Override
         public void clickedTopNo() {
-            session.answerDescription(bestSymptom, Answer.get("no"));
+            session.answerSymptom(bestSymptom, Answer.get("no"));
             updateUi();
         }
 
         @Override
         public void clickedOtherYes(int selectedIndex) {
-            session.answerDescription(allSymptoms.get(selectedIndex), Answer.get("yes"));
+            session.answerSymptom(allSymptoms.get(selectedIndex), Answer.get("yes"));
             updateUi();
         }
 
         @Override
         public void clickedOtherNo(int selectedIndex) {
-            session.answerDescription(allSymptoms.get(selectedIndex), Answer.get("no"));
+            session.answerSymptom(allSymptoms.get(selectedIndex), Answer.get("no"));
             updateUi();
         }
 

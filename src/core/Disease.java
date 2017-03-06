@@ -132,6 +132,21 @@ public class Disease implements Comparable<Disease> {
     }
 
 
+    public boolean isRelevant(Rule rule) {
+        if (parents.equals(rule)) {
+            return true;
+        } else if (parents.isEmpty()) {
+            return false;
+        } else {
+            for (Rule parent : parents) {
+                if (parent.isAncestor(rule)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
