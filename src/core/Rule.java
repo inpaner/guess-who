@@ -161,7 +161,6 @@ public class Rule {
         } else {
             status = Status.ACTIVE;
         }
-
         return status;
     }
 

@@ -113,7 +113,7 @@ public class RuleManager {
 
     public static List<Rule> answerSymptom(Symptom recentSymptom, Answer recentAnswer) {
         List<Rule> rules = symptomCache.get(recentSymptom);
-        if (rules == null || rules.isEmpty()) {
+        if (rules == null) {
             return rules;
         }
         for (Rule rule : rules) {
@@ -122,6 +122,17 @@ public class RuleManager {
         return rules;
     }
 
+
+    public static List<Rule> removeSymptom(Symptom symptom) {
+        List<Rule> rules = symptomCache.get(symptom);
+        if (rules == null) {
+             return rules;
+        }
+        for (Rule rule : rules) {
+            rule.removeSymptom(symptom);
+        }
+        return rules;
+    }
 
     public static void main(String[] args) {
         new RuleManager().testSymptomCache();

@@ -166,6 +166,7 @@ public final class Session {
         return sortedSymptoms;
     }
 
+
     private class DescriptionMargin implements Comparable<DescriptionMargin> {
         Symptom symptom;
         double totalMargin;
@@ -233,7 +234,7 @@ public final class Session {
         Rule relevantRule = null;
         Rule.Ancestry ancestry = null;
         for (Rule rule : returnedRules) {
-             ancestry = currentDisease.ancestry(rule);
+            ancestry = currentDisease.ancestry(rule);
             if (!ancestry.equals(Rule.Ancestry.NOT_ANCESTOR)) { // if rule is ancestor
                 relevantRule = rule;
                 break;
@@ -242,12 +243,10 @@ public final class Session {
         List<Rule> appliedRuleForDisease = appliedRules.get(currentDisease);
         if (appliedRuleForDisease == null) {
             appliedRuleForDisease = new ArrayList<>();
-            appliedRules.put(currentDisease, appliedRuleForDisease);
         }
         if (relevantRule == null || appliedRuleForDisease.contains(relevantRule)) {
             return;
         }
-
 
         if (relevantRule.isPass() && ancestry.equals(Rule.Ancestry.YES) && answer.getScore() > 0) {
             currentDisease.addScore(cell.getScore());
@@ -281,18 +280,62 @@ public final class Session {
     }
 
 
+    private void removeRule(Disease disease, Rule rule) {
+        List<Rule> rules = appliedRules.get(disease);
+        if (rules != null) {
+            rules.remove(rule);
+        }
+    }
+
+
     private void undoAnswer(Symptom symptom) {
+        List<Rule> returnedRules = RuleManager.removeSymptom(symptom);
+
         // Undo the added scores to the persons
         Answer oldAnswer = answeredSymptoms.get(symptom);
         List<Cell> oldFinishedCells = modifiedCells.get(symptom);
         for (Cell oldCell : oldFinishedCells) {
             Disease currentDisease = allDiseases.get(allDiseases.indexOf(oldCell.getDisease()));
-            oldCell.addScore(-oldAnswer.getScore());
-            if (oldAnswer.getScore() > 0) {
-                currentDisease.addScore(-oldCell.getScore());
+            if (returnedRules == null || returnedRules.isEmpty()) {
+                oldCell.addScore(-oldAnswer.getScore());
+                if (oldAnswer.getScore() > 0) {
+                    currentDisease.addScore(-oldCell.getScore());
+                } else if (oldAnswer.getScore() < 0){
+                    currentDisease.addScore(oldCell.getScore());
+                }
             } else {
-                currentDisease.addScore(oldCell.getScore());
+                handleUndoAnswerWithRule(currentDisease, oldAnswer, oldCell, returnedRules);
             }
+        }
+    }
+
+
+    private void handleUndoAnswerWithRule(Disease currentDisease, Answer oldAnswer, Cell cell, List<Rule> returnedRules) {
+        Rule relevantRule = null;
+        Rule.Ancestry ancestry = null;
+        for (Rule rule : returnedRules) {
+            ancestry = currentDisease.ancestry(rule);
+            if (!ancestry.equals(Rule.Ancestry.NOT_ANCESTOR)) { // if rule is ancestor
+                relevantRule = rule;
+                break;
+            }
+        }
+        List<Rule> appliedRuleForDisease = appliedRules.get(currentDisease);
+        if (appliedRuleForDisease == null) {
+            appliedRuleForDisease = new ArrayList<>();
+        }
+        if (relevantRule == null || appliedRuleForDisease.contains(relevantRule)) {
+            return;
+        }
+
+        if (relevantRule.isPass() && ancestry.equals(Rule.Ancestry.YES) && oldAnswer.getScore() > 0) {
+            currentDisease.addScore(-cell.getScore());
+            cell.addScore(-oldAnswer.getScore()); // TODO: verify if valid
+            removeRule(currentDisease, relevantRule);
+        } else if (relevantRule.isFail() && ancestry.equals(Rule.Ancestry.NO) && oldAnswer.getScore() < 0){
+            currentDisease.addScore(cell.getScore());
+            cell.addScore(-oldAnswer.getScore()); // TODO: verify if valid
+            removeRule(currentDisease, relevantRule);
         }
     }
 
@@ -305,6 +348,7 @@ public final class Session {
         modifiedCells.remove(symptom);
         answeredSymptoms.remove(symptom);
     }
+
 
 
     public List<Disease> getTopDiseases() {
@@ -341,8 +385,8 @@ public final class Session {
         List<Cell> filteredCells = new ArrayList<>();
         List<Disease> topPersons = getTopDiseases();
         for (Cell cell : diseaseCells) {
-//            if (allDiseases.contains(cell.getDisease())) {
-            if (topPersons.contains(cell.getDisease())) {
+            if (allDiseases.contains(cell.getDisease())) {
+//            if (topPersons.contains(cell.getDisease())) {
                 filteredCells.add(cell);
             }
         }
